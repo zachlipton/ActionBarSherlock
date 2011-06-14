@@ -47,7 +47,11 @@ public class MenuBuilder implements Menu {
 	
 	
 	public interface Callback {
-		public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item);
+		boolean onMenuItemSelected(MenuBuilder menu, MenuItem item);
+	}
+	
+	public interface ItemInvoker {
+		boolean invokeItem(MenuItemImpl item);
 	}
 	
 	
@@ -57,6 +61,12 @@ public class MenuBuilder implements Menu {
 	
 	/** Child {@link ActionBarMenuItem} items. */
 	private final List<MenuItemImpl> mItems;
+	
+	private int mMaxActionItems;
+	
+	private int mActionWidthLimit;
+	
+	private boolean mIsActionItemsStale;
 	
 	/** Menu callback that will receive various events. */
 	private Callback mCallback;
@@ -135,6 +145,21 @@ public class MenuBuilder implements Menu {
 				curItem.setCheckedInt(curItem == item);
 			}
 		}
+	}
+	
+	void setActionWidthLimit(int width) {
+		mActionWidthLimit = width;
+		mIsActionItemsStale = true;
+	}
+	
+	void setMaxActionItems(int maxItems) {
+		mMaxActionItems = maxItems;
+		mIsActionItemsStale = true;
+	}
+	
+	public boolean performItemAction(MenuItem item, int flags) {
+		//TODO
+		return false;
 	}
 	
 	// ** Menu Methods ** \\

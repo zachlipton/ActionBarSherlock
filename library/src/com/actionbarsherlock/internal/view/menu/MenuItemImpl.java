@@ -386,6 +386,10 @@ public final class MenuItemImpl implements MenuItem {
 	public CharSequence getTitleCondensed() {
 		return mTitleCondensed;
 	}
+	
+	public CharSequence getTitleForItemView(MenuView.ItemView itemView) {
+		return itemView.prefersCondensedTitle() ? getTitleCondensed() : getTitle();
+	}
 
 	@Override
 	public MenuItem setTitleCondensed(CharSequence title) {
@@ -558,6 +562,10 @@ public final class MenuItemImpl implements MenuItem {
 		return mClickListener;
 	}
 	
+	public boolean showsTextAsAction() {
+		return (mShowAsAction & MenuItem.SHOW_AS_ACTION_WITH_TEXT) != MenuItem.SHOW_AS_ACTION_WITH_TEXT;
+	}
+	
 	
 
 	
@@ -582,7 +590,6 @@ public final class MenuItemImpl implements MenuItem {
 			setEnabled(itemData.isEnabled());
 			setCheckable(itemData.isCheckable());
 			setChecked(itemData.isChecked());
-			setActionView(itemData.getActionView());
 		}
 
 		@Override
@@ -623,11 +630,6 @@ public final class MenuItemImpl implements MenuItem {
 		@Override
 		public boolean showsIcon() {
 			return true;
-		}
-
-		@Override
-		public void setActionView(View actionView) {
-			//Not supported
 		}
 	}
 }
