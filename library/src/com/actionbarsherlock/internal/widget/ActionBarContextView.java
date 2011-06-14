@@ -213,4 +213,18 @@ public class ActionBarContextView extends ViewGroup {
 		
 		requestLayout();
 	}
+	
+	public void setHeight(int height) {
+		mContentHeight = height;
+	}
+	
+	public void setSubtitle(CharSequence subtitle) {
+		mSubtitle = subtitle;
+		initTitle();
+	}
+	
+	public void setTitle(CharSequence title) {
+		mTitle = title;
+		initTitle();
+	}
 }
