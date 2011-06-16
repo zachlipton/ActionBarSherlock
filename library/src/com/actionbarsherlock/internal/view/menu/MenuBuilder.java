@@ -17,6 +17,7 @@
 
 package com.actionbarsherlock.internal.view.menu;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import android.content.ComponentName;
@@ -27,6 +28,9 @@ import android.content.pm.ResolveInfo;
 import android.support.v4.view.Menu;
 import android.support.v4.view.MenuItem;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 /**
  * An implementation of the {@link android.view.Menu} interface for use in
@@ -65,7 +69,8 @@ public class MenuBuilder implements Menu {
 	private int mMaxActionItems;
 	
 	private int mActionWidthLimit;
-	
+	private int mDefaultShowAsAction = MenuItem.SHOW_AS_ACTION_NEVER;
+	private MenuType[] mMenuTypes;
 	private boolean mIsActionItemsStale;
 	
 	/** Menu callback that will receive various events. */
@@ -79,8 +84,9 @@ public class MenuBuilder implements Menu {
 	 * @param context Context used if resource resolution is required.
 	 */
 	public MenuBuilder(Context context) {
-		this.mContext = context;
-		this.mItems = new ArrayList<MenuItemImpl>();
+		mContext = context;
+		mItems = new ArrayList<MenuItemImpl>();
+		mMenuTypes = new MenuType[NUM_TYPES];
 	}
 
 	
@@ -130,6 +136,14 @@ public class MenuBuilder implements Menu {
 	final Context getContext() {
 		return this.mContext;
 	}
+	
+	MenuType getMenuType(int menuType) {
+		return mMenuTypes[menuType];
+	}
+	
+	public View getMenuView(int menuType, ViewGroup parent) {
+		return (View)getMenuType(menuType).getMenuView(parent);
+	}
 
 	void setExclusiveItemChecked(MenuItem item) {
 		final int group = item.getGroupId();
@@ -155,6 +169,11 @@ public class MenuBuilder implements Menu {
 	void setMaxActionItems(int maxItems) {
 		mMaxActionItems = maxItems;
 		mIsActionItemsStale = true;
+	}
+	
+	public MenuBuilder setDefaultShowAsAction(int showAsAction) { 
+		mDefaultShowAsAction = showAsAction;
+		return this;
 	}
 	
 	public boolean performItemAction(MenuItem item, int flags) {
@@ -355,5 +374,26 @@ public class MenuBuilder implements Menu {
 	@Override
 	public void setQwertyMode(boolean isQwerty) {
 		throw new RuntimeException("Method not supported.");
+	}
+	
+	
+	class MenuType {
+		private LayoutInflater mInflater;
+		private int mMenuType;
+		private WeakReference<MenuView> mMenuView;
+		
+		MenuType(int menuType) {
+			mMenuType = menuType;
+		}
+		
+		
+		MenuView getMenuView(ViewGroup parent) {
+			//TODO
+			return null;
+		}
+		
+		boolean hasMenuView() {
+			return (mMenuView != null) && (mMenuView.get() != null);
+		}
 	}
 }

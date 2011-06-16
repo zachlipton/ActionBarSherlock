@@ -25,7 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.SpinnerAdapter;
-import com.actionbarsherlock.internal.app.ActionBarHandlerWatson;
+import com.actionbarsherlock.internal.app.ActionBarSupportImpl;
 import com.actionbarsherlock.internal.view.menu.MenuItemImpl;
 
 /**
@@ -36,7 +36,7 @@ import com.actionbarsherlock.internal.view.menu.MenuItemImpl;
  */
 public abstract class ActionBar {
 	/** Custom handler class. */
-	static Class<? extends ActionBar> HANDLER_CUSTOM = ActionBarHandlerWatson.class;
+	static Class<? extends ActionBar> HANDLER_CUSTOM = ActionBarSupportImpl.class;
 
 	
 	/**
@@ -98,7 +98,7 @@ public abstract class ActionBar {
 	
 	protected abstract void setContentView(View view, ViewGroup.LayoutParams params);
 	
-	protected abstract void onMenuVisibilityChanged(boolean isVisible);
+	protected abstract void dispatchMenuVisibilityChanged(boolean isVisible);
 	
 	protected abstract void onMenuInflated(Menu menu);
 
@@ -194,7 +194,7 @@ public abstract class ActionBar {
 	 * <p>Tabs manage the hiding and showing of
 	 * {@link android.support.v4.app.Fragment}.</p>
 	 */
-	public static interface Tab {
+	public static abstract class Tab {
 		/**
 		 * An invalid position for a tab.
 		 * 
@@ -224,13 +224,6 @@ public abstract class ActionBar {
 		 * not currently in the action bar.
 		 */
 		public abstract int getPosition();
-		
-		/**
-		 * Return the current tab listener.
-		 * 
-		 * @return Tab listener.
-		 */
-		public abstract ActionBar.TabListener getTabListener();
 		
 		/**
 		 * @return This Tab's tag object.

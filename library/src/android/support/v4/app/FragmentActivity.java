@@ -21,7 +21,7 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import com.actionbarsherlock.internal.app.ActionBarHandlerNative;
+import com.actionbarsherlock.internal.app.ActionBarNativeImpl;
 import com.actionbarsherlock.internal.view.menu.MenuBuilder;
 import com.actionbarsherlock.internal.view.menu.MenuInflaterWrapper;
 import com.actionbarsherlock.internal.view.menu.MenuItemImpl;
@@ -142,7 +142,7 @@ public class FragmentActivity extends Activity {
 		//Load the appropriate action bar handler and menu
 		Class<? extends ActionBar> handler = null;
 		if (IS_HONEYCOMB) {
-			handler = ActionBarHandlerNative.get();
+			handler = ActionBarNativeImpl.get();
 			
 			//No menu, everything should be done natively
 			mActionBarMenu = null;

@@ -26,9 +26,9 @@ import android.support.v4.view.MenuInflater;
 import android.view.View;
 import android.widget.SpinnerAdapter;
 
-public final class ActionBarHandlerNative {
+public final class ActionBarNativeImpl {
 	//No instances
-	private ActionBarHandlerNative() {}
+	private ActionBarNativeImpl() {}
 	
 	/**
 	 * Simple static method abstraction to get a reference to our implementing class.
@@ -36,7 +36,7 @@ public final class ActionBarHandlerNative {
 	 * @return {@code ActionBarNative.Impl.class}
 	 */
 	public static Class<? extends ActionBar> get() {
-		return ActionBarHandlerNative.Impl.class;
+		return ActionBarNativeImpl.Impl.class;
 	}
 
 	/**
@@ -171,83 +171,13 @@ public final class ActionBarHandlerNative {
 				})
 			);
 		}
-
-		private static class ActionModeWrapper extends ActionMode {
-			private final Context mContext;
-			private final android.view.ActionMode mActionMode;
-			
-			ActionModeWrapper(Context context, android.view.ActionMode actionMode) {
-				mContext = context;
-				mActionMode = actionMode;
-			}
-			
-			@Override
-			public void finish() {
-				mActionMode.finish();
-			}
-
-			@Override
-			public View getCustomView() {
-				return mActionMode.getCustomView();
-			}
-
-			@Override
-			public android.view.Menu getMenu() {
-				return mActionMode.getMenu();
-			}
-
-			@Override
-			public MenuInflater getMenuInflater() {
-				return new MenuInflater(mContext);
-			}
-
-			@Override
-			public CharSequence getSubtitle() {
-				return mActionMode.getSubtitle();
-			}
-
-			@Override
-			public CharSequence getTitle() {
-				return mActionMode.getTitle();
-			}
-
-			@Override
-			public void invalidate() {
-				mActionMode.invalidate();
-			}
-
-			@Override
-			public void setCustomView(View view) {
-				mActionMode.setCustomView(view);
-			}
-
-			@Override
-			public void setSubtitle(int resId) {
-				mActionMode.setSubtitle(resId);
-			}
-
-			@Override
-			public void setSubtitle(CharSequence subtitle) {
-				mActionMode.setSubtitle(subtitle);
-			}
-
-			@Override
-			public void setTitle(int resId) {
-				mActionMode.setTitle(resId);
-			}
-
-			@Override
-			public void setTitle(CharSequence title) {
-				mActionMode.setTitle(title);
-			}
-		}
 		
 		// ---------------------------------------------------------------------
 		// ACTION BAR SUPPORT
 		// ---------------------------------------------------------------------
 		
-		private static class TabImpl implements ActionBar.Tab {
-			final ActionBarHandlerNative.Impl mActionBar;
+		private static final class TabImpl implements ActionBar.Tab {
+			final ActionBarNativeImpl.Impl mActionBar;
 			
 			View mCustomView;
 			Drawable mIcon;
@@ -255,7 +185,7 @@ public final class ActionBarHandlerNative {
 			Object mTag;
 			CharSequence mText;
 			
-			TabImpl(ActionBarHandlerNative.Impl actionBar) {
+			TabImpl(ActionBarNativeImpl.Impl actionBar) {
 				mActionBar = actionBar;
 			}
 
@@ -599,6 +529,76 @@ public final class ActionBarHandlerNative {
 		@Override
 		public void show() {
 			getActionBar().show();
+		}
+	}
+
+	private static final class ActionModeWrapper extends ActionMode {
+		private final Context mContext;
+		private final android.view.ActionMode mActionMode;
+		
+		ActionModeWrapper(Context context, android.view.ActionMode actionMode) {
+			mContext = context;
+			mActionMode = actionMode;
+		}
+		
+		@Override
+		public void finish() {
+			mActionMode.finish();
+		}
+
+		@Override
+		public View getCustomView() {
+			return mActionMode.getCustomView();
+		}
+
+		@Override
+		public android.view.Menu getMenu() {
+			return mActionMode.getMenu();
+		}
+
+		@Override
+		public MenuInflater getMenuInflater() {
+			return new MenuInflater(mContext);
+		}
+
+		@Override
+		public CharSequence getSubtitle() {
+			return mActionMode.getSubtitle();
+		}
+
+		@Override
+		public CharSequence getTitle() {
+			return mActionMode.getTitle();
+		}
+
+		@Override
+		public void invalidate() {
+			mActionMode.invalidate();
+		}
+
+		@Override
+		public void setCustomView(View view) {
+			mActionMode.setCustomView(view);
+		}
+
+		@Override
+		public void setSubtitle(int resId) {
+			mActionMode.setSubtitle(resId);
+		}
+
+		@Override
+		public void setSubtitle(CharSequence subtitle) {
+			mActionMode.setSubtitle(subtitle);
+		}
+
+		@Override
+		public void setTitle(int resId) {
+			mActionMode.setTitle(resId);
+		}
+
+		@Override
+		public void setTitle(CharSequence title) {
+			mActionMode.setTitle(title);
 		}
 	}
 }

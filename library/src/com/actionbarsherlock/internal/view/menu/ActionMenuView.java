@@ -8,6 +8,7 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -18,6 +19,8 @@ public class ActionMenuView extends LinearLayout implements MenuView, MenuBuilde
 	private float mDividerPadding;
 	private int mMaxItems;
 	private MenuBuilder mMenu;
+	private OverflowMenuButton mOverflowButton;
+	private boolean mReserveOverflow;
 	private int mWidthLimit;
 	
 	public ActionMenuView(Context context) {
@@ -110,9 +113,36 @@ public class ActionMenuView extends LinearLayout implements MenuView, MenuBuilde
 		
 		//TODO
 	}
+	
+	public void setOverflowReserved(boolean reserved) {
+		mReserveOverflow = reserved;
+	}
+	
+	public boolean showOverflowMenu() {
+		if (mOverflowButton != null) {
+			//TODO dispatch openOptionsMenu() to activity
+			return true;
+		}
+		return false;
+	}
 
 	@Override
 	public void updateChildren(boolean cleared) {
 		//TODO
+	}
+	
+	
+	class OverflowMenuButton extends ImageButton {
+		public OverflowMenuButton(Context context) {
+			super(context, null, R.attr.actionOverflowButtonStyle);
+			setClickable(true);
+			setFocusable(true);
+			setVisibility(View.VISIBLE);
+			setEnabled(true);
+		}
+		
+		public boolean performClick() {
+			return super.performClick() ? true : ActionMenuView.this.showOverflowMenu();
+		}
 	}
 }
