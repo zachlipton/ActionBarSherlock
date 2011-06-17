@@ -21,7 +21,9 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import com.actionbarsherlock.R;
 import com.actionbarsherlock.internal.app.ActionBarNativeImpl;
+import com.actionbarsherlock.internal.app.ActionBarSupportImpl;
 import com.actionbarsherlock.internal.view.menu.MenuBuilder;
 import com.actionbarsherlock.internal.view.menu.MenuInflaterWrapper;
 import com.actionbarsherlock.internal.view.menu.MenuItemImpl;
@@ -47,6 +49,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.FrameLayout;
 
 /**
  * Base class for activities that want to use the support-based ActionBar,
@@ -75,7 +78,7 @@ public class FragmentActivity extends Activity {
 	
 	private static final String FRAGMENTS_TAG = "android:support:fragments";
 	
-	private static final boolean IS_HONEYCOMB = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+	static final boolean IS_HONEYCOMB = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
 
 	static final int MSG_REALLY_STOPPED = 1;
 
@@ -137,38 +140,15 @@ public class FragmentActivity extends Activity {
 	public FragmentActivity() {
 		super();
 		
-		if (DEBUG) Log.d(TAG, "<ctor>(): IS_HONEYCOMB = " + IS_HONEYCOMB);
-		
 		//Load the appropriate action bar handler and menu
-		Class<? extends ActionBar> handler = null;
 		if (IS_HONEYCOMB) {
-			handler = ActionBarNativeImpl.get();
-			
-			//No menu, everything should be done natively
-			mActionBarMenu = null;
+			mActionBar = ActionBarNativeImpl.createFor(this);
+			mActionBarMenu = null; //Everything should be done natively
 		} else {
-			if (ActionBar.HANDLER_CUSTOM != null) {
-				handler = ActionBar.HANDLER_CUSTOM;
-			}
-			
+			mActionBar = ActionBarSupportImpl.createFor(this);
 			mActionBarMenu = new MenuBuilder(this);
 			mActionBarMenu.setCallback(mMenuCallback);
 		}
-		
-		if (handler != null) {
-			try {
-				mActionBar = handler.newInstance();
-				mActionBar.setActivity(this);
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new RuntimeException(e);
-			}
-		} else {
-			mActionBar = null;
-		}
-		
-		if (DEBUG) Log.d(TAG, "<ctor>(): mActionBarMenu = " + mActionBarMenu);
-		if (DEBUG) Log.d(TAG, "<ctor>(): mActionBar = " + mActionBar);
 	}
 	
 	// ------------------------------------------------------------------------
@@ -184,11 +164,22 @@ public class FragmentActivity extends Activity {
 	 * now enabled.
 	 */
 	public boolean requestWindowFeature(long featureId) {
-		if (IS_HONEYCOMB) {
-			return super.requestWindowFeature((int)featureId);
-		} else {
-			return mActionBar.requestWindowFeature((int)featureId);
+		if (!IS_HONEYCOMB) {
+			ActionBarSupportImpl actionBar = (ActionBarSupportImpl)mActionBar;
+			if (featureId == Window.FEATURE_ACTION_BAR_OVERLAY) {
+				// TODO Make action bar partially transparent
+				return true;
+			}
+			if (featureId == Window.FEATURE_ACTION_MODE_OVERLAY) {
+				// TODO Make action modes partially transparent
+				return true;
+			}
+			if (featureId == Window.FEATURE_ENABLE_ACTION_BAR_WATSON_TEXT) {
+				actionBar.forceActionItemText();
+				return true;
+			}
 		}
+		return super.requestWindowFeature((int)featureId);
 	}
 	
 	@Override
@@ -209,7 +200,9 @@ public class FragmentActivity extends Activity {
 	@Override
 	public void setContentView(int layoutResId) {
 		if ((mActionBar != null) && !IS_HONEYCOMB) {
-			mActionBar.setContentView(layoutResId);
+			FrameLayout contentView = (FrameLayout)findViewById(R.id.actionbarsherlock_content);
+			contentView.removeAllViews();
+			getLayoutInflater().inflate(layoutResId, contentView, true);
 		} else {
 			super.setContentView(layoutResId);
 		}
@@ -218,7 +211,9 @@ public class FragmentActivity extends Activity {
 	@Override
 	public void setContentView(View view, LayoutParams params) {
 		if ((mActionBar != null) && !IS_HONEYCOMB) {
-			mActionBar.setContentView(view, params);
+			FrameLayout contentView = (FrameLayout)findViewById(R.id.actionbarsherlock_content);
+			contentView.removeAllViews();
+			contentView.addView(view, params);
 		} else {
 			super.setContentView(view, params);
 		}
@@ -227,7 +222,9 @@ public class FragmentActivity extends Activity {
 	@Override
 	public void setContentView(View view) {
 		if ((mActionBar != null) && !IS_HONEYCOMB) {
-			mActionBar.setContentView(view);
+			FrameLayout contentView = (FrameLayout)findViewById(R.id.actionbarsherlock_content);
+			contentView.removeAllViews();
+			contentView.addView(view);
 		} else {
 			super.setContentView(view);
 		}
@@ -308,7 +305,10 @@ public class FragmentActivity extends Activity {
 		
 		super.onCreate(savedInstanceState);
 		if (!IS_HONEYCOMB) {
-			mActionBar.performAttach();
+			//No title bar, we're replacing that with an action bar
+			requestWindowFeature(Window.FEATURE_NO_TITLE);
+			//Load up the wrapper layout
+			super.setContentView(R.layout.actionbarsherlock_wrapper);
 		}
 		
 		NonConfigurationInstances nc = (NonConfigurationInstances)
@@ -473,7 +473,7 @@ public class FragmentActivity extends Activity {
 			//inflation callback to allow it to display any items it wants.
 			//Any items that were displayed will have a boolean toggled so that we
 			//do not display them on the options menu.
-			mActionBar.onMenuInflated(mActionBarMenu);
+			//TODO: mActionBar.onMenuInflated(mActionBarMenu);
 			
 			// Whoops, older platform...  we'll use a hack, to manually rebuild
 			// the options menu the next time it is prepared.
@@ -586,7 +586,7 @@ public class FragmentActivity extends Activity {
 				
 				if (!IS_HONEYCOMB) {
 					if (DEBUG) Log.d(TAG, "onPanelClosed(int, android.view.Menu): Dispatch menu visibility false to custom action bar.");
-					mActionBar.onMenuVisibilityChanged(false);
+					((ActionBarSupportImpl)mActionBar).dispatchMenuVisibilityChanged(false);
 				}
 				break;
 		}
@@ -664,7 +664,7 @@ public class FragmentActivity extends Activity {
 			
 			if (mOptionsMenuCreateResult && prepareResult && menu.hasVisibleItems()) {
 				if (DEBUG) Log.d(TAG, "onPrepareOptionsMenu(android.view.Menu): Dispatch menu visibility true to custom action bar.");
-				mActionBar.onMenuVisibilityChanged(true);
+				((ActionBarSupportImpl)mActionBar).dispatchMenuVisibilityChanged(true);
 				result = true;
 			}
 		} else {

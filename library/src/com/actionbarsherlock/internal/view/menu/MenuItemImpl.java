@@ -27,6 +27,7 @@ import android.support.v4.view.MenuItem;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 
 /**
@@ -60,12 +61,12 @@ public final class MenuItemImpl implements MenuItem {
 	private int mActionViewRes = View.NO_ID;
 
 	int mFlags = ENABLED;
-	private static final int CHECKABLE = 0x01;
-	private static final int CHECKED   = 0x02;
-	private static final int EXCLUSIVE = 0x04;
-	private static final int HIDDEN    = 0x08;
-	private static final int ENABLED   = 0x10;
-	private static final int IS_ACTION = 0x20;
+	static final int CHECKABLE = 0x01;
+	static final int CHECKED   = 0x02;
+	static final int EXCLUSIVE = 0x04;
+	static final int HIDDEN    = 0x08;
+	static final int ENABLED   = 0x10;
+	static final int IS_ACTION = 0x20;
 	
 	private final WeakReference<MenuView.ItemView>[] mItemViews;
 	
@@ -496,29 +497,15 @@ public final class MenuItemImpl implements MenuItem {
 	@Override
 	public MenuItem setActionView(View view) {
 		mActionView = view;
-		mActionViewRes = View.NO_ID;
-		setActionViewOnViews(mActionView);
+		mMenu.onItemActionRequestChanged(this);
 		return this;
 	}
 
 	@Override
 	public MenuItem setActionView(int resId) {
-		mActionView = null;
-		mActionViewRes = resId;
-		
-		if (mActionViewRes != View.NO_ID) {
-			setActionViewOnViews(LayoutInflater.from(mMenu.getContext()).inflate(mActionViewRes, null, false));
-		}
-		
-		return this;
-	}
-	
-	void setActionViewOnViews(View view) {
-		for (int i = MenuBuilder.NUM_TYPES - 1; i >= 0; i--) {
-			if (hasItemView(i)) {
-				mItemViews[i].get().setActionView(view);
-			}
-		}
+		ViewGroup viewGroup = (ViewGroup)mMenu.getMenuView(MenuBuilder.TYPE_WATSON, null);
+		View view = LayoutInflater.from(mMenu.getContext()).inflate(resId, viewGroup, false);
+		return setActionView(view);
 	}
 
 	@Override

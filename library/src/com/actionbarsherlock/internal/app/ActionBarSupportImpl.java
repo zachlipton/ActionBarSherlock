@@ -19,38 +19,37 @@ package com.actionbarsherlock.internal.app;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.List;
-import android.app.Activity;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.ActionBar;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ActionMode;
-import android.support.v4.view.Menu;
 import android.support.v4.view.MenuInflater;
 import android.support.v4.view.MenuItem;
-import android.support.v4.view.Window;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.SpinnerAdapter;
+import com.actionbarsherlock.R;
 import com.actionbarsherlock.internal.view.menu.MenuBuilder;
-import com.actionbarsherlock.internal.view.menu.MenuItemImpl;
-import com.actionbarsherlock.internal.view.menu.MenuView;
 import com.actionbarsherlock.internal.widget.ActionBarContainer;
 import com.actionbarsherlock.internal.widget.ActionBarContextView;
 import com.actionbarsherlock.internal.widget.ActionBarWatson;
-import com.actionbarsherlock.R;
 
 public final class ActionBarSupportImpl extends ActionBar {
+	/**
+	 * Simple static method abstraction to get an instance of our implementing class.
+	 * 
+	 * @return {@link ActionBar}
+	 */
+	public static ActionBar createFor(FragmentActivity activity) {
+		return new ActionBarSupportImpl(activity);
+	}
+	
+	
 	private static final int CONTEXT_DISPLAY_NORMAL = 0;
 	private static final int CONTEXT_DISPLAY_SPLIT = 1;
 	private static final DecelerateInterpolator sFadeOutInterpolator = new DecelerateInterpolator();
@@ -64,7 +63,6 @@ public final class ActionBarSupportImpl extends ActionBar {
 	
 	private ActionMode mActionMode;
 	private ActionBarWatson mActionView;
-	private Activity mActivity;
 	private ActionBarContainer mContainerView;
 	private FrameLayout mContentView;
 	private Context mContext;
@@ -78,6 +76,18 @@ public final class ActionBarSupportImpl extends ActionBar {
 	private ArrayList<TabImpl> mTabs;
 	private ActionBarContextView mUpperContextView;
 	private boolean mIsActionItemTextEnabled;
+	
+	
+	private ActionBarSupportImpl(FragmentActivity activity) {
+		super(activity);
+		
+		mTabs = new ArrayList<TabImpl>();
+		mSavedTabPosition = -1;
+		mMenuVisibilityListeners = new ArrayList<OnMenuVisibilityListener>();
+		//TODO
+		
+		mContentView = (FrameLayout)activity.findViewById(R.id.actionbarsherlock_content);
+	}
 	
 	
 	
@@ -162,8 +172,8 @@ public final class ActionBarSupportImpl extends ActionBar {
 			selectTab(tab);
 		}
 	}
-	@Override
-	protected void dispatchMenuVisibilityChanged(boolean isVisible) {
+	
+	public void dispatchMenuVisibilityChanged(boolean isVisible) {
 		//Marshal to all listeners
 		for (OnMenuVisibilityListener listener : mMenuVisibilityListeners) {
 			listener.onMenuVisibilityChanged(isVisible);
@@ -172,7 +182,7 @@ public final class ActionBarSupportImpl extends ActionBar {
 	
 	@Override
 	public View getCustomView() {
-		return mActionView.getCustomView();
+		return mActionView.getCustomNavigationView();
 	}
 	
 	@Override
@@ -294,7 +304,7 @@ public final class ActionBarSupportImpl extends ActionBar {
 	@Override
 	public void setCustomView(int resId) {
 		View view = LayoutInflater.from(mContext).inflate(resId, mActionView, false);
-		setContentView(view);
+		setCustomView(view);
 	}
 
 	@Override
@@ -614,56 +624,7 @@ public final class ActionBarSupportImpl extends ActionBar {
 	
 	
 
-	@Override
-	protected void performAttach() {
-		getActivity().requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setActivityContentView(R.layout.actionbarwatson_wrapper);
-		
-		mActionBar = (ActionBarWatson)getActivity().findViewById(R.id.actionbarwatson);
-		mContentView = (FrameLayout)getActivity().findViewById(R.id.actionbarsherlock_content);
-		
-		final MenuItemImpl homeMenuItem = getHomeMenuItem();
-		final ActionBarWatson.Item homeItem = mActionBar.getHomeItem();
-		final WatsonItemViewWrapper homeWrapper = new WatsonItemViewWrapper(homeItem);
-		homeWrapper.initialize(homeMenuItem, MenuBuilder.TYPE_WATSON);
-		homeMenuItem.setItemView(MenuBuilder.TYPE_WATSON, homeWrapper);
-
-		final PackageManager pm = getActivity().getPackageManager();
-		final ApplicationInfo appInfo = getActivity().getApplicationInfo();
-		ActivityInfo actInfo = null;
-		try {
-			actInfo = pm.getActivityInfo(getActivity().getComponentName(), PackageManager.GET_ACTIVITIES);
-		} catch (NameNotFoundException e) {}
-
-		
-		if ((actInfo != null) && (actInfo.labelRes != 0)) {
-			//Load label string resource from the activity entry
-			mActionBar.setTitle(actInfo.labelRes);
-		} else if (mActionBar.getTitle() == null) {
-			//No activity label string resource and none in theme
-			mActionBar.setTitle(actInfo.loadLabel(pm));
-		}
-		
-		if ((actInfo != null) && (actInfo.icon != 0)) {
-			//Load the icon from the activity entry
-			homeItem.setIcon(actInfo.icon);
-		} else if (homeItem.getIcon() == null) {
-			//No activity icon and none in theme
-			homeItem.setIcon(pm.getApplicationIcon(appInfo));
-		}
-		
-		//XXX LOGO LOADING DOES NOT WORK
-		//XXX SEE: http://stackoverflow.com/questions/6105504/load-activity-and-or-application-logo-programmatically-from-manifest
-		//XXX SEE: https://groups.google.com/forum/#!topic/android-developers/UFR4l0ZwJWc
-		//if ((actInfo != null) && (actInfo.logo != 0)) {
-		//	//Load the logo from the activity entry
-		//	homeItem.setLogo(actInfo.logo);
-		//} else if ((homeItem.getLogo() == null) && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD)) {
-		//	//No activity logo and none in theme
-		//	homeItem.setLogo(appInfo.logo);
-		//}
-	}
-
+	/* TODO: THIS WILL GO SOMEWHERE ELSE!
 	@Override
 	protected void onMenuInflated(Menu menu) {
 		int maxItems = MAX_ACTION_BAR_ITEMS_PORTRAIT;
@@ -732,36 +693,9 @@ public final class ActionBarSupportImpl extends ActionBar {
 			mActionBar.addItem(watsonItem);
 		}
 	}
+	*/
 
-	@Override
-	protected void setContentView(int layoutResId) {
-		getActivity().getLayoutInflater().inflate(layoutResId, mContentView, true);
-	}
-
-	@Override
-	protected void setContentView(View view) {
-		mContentView.addView(view);
-	}
-
-	@Override
-	protected void setContentView(View view, ViewGroup.LayoutParams params) {
-		mContentView.addView(view, params);
-	}
-
-	@Override
-	protected boolean requestWindowFeature(int featureId) {
-		if (featureId == Window.FEATURE_ACTION_BAR_OVERLAY) {
-			// TODO Make action bar partially transparent
-			return true;
-		}
-		if (featureId == Window.FEATURE_ACTION_MODE_OVERLAY) {
-			// TODO Make action modes partially transparent
-			return true;
-		}
-		if (featureId == Window.FEATURE_ENABLE_ACTION_BAR_WATSON_TEXT) {
-			mIsActionItemTextEnabled = true;
-			return true;
-		}
-		return false;
+	public void forceActionItemText() {
+		mIsActionItemTextEnabled = true;
 	}
 }

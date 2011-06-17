@@ -86,10 +86,19 @@ public class ActionMenuView extends LinearLayout implements MenuView, MenuBuilde
 		}
 		return generateDefaultLayoutParams();
 	}
+	
+	public View getOverflowButton() {
+		return mOverflowButton;
+	}
 
 	@Override
 	public int getWindowAnimations() {
 		return 0;
+	}
+	
+	public boolean hideOverflowMenu() {
+		//TODO
+		return false;
 	}
 
 	@Override
@@ -107,10 +116,28 @@ public class ActionMenuView extends LinearLayout implements MenuView, MenuBuilde
 		return mMenu.performItemAction(item, 0);
 	}
 	
+	public boolean isOverflowMenuOpen() {
+		//TODO
+		return false;
+	}
+	
+	public boolean isOverflowMenuShowing() {
+		//TODO
+		return false;
+	}
+	
+	public boolean isOverflowReserved() {
+		return mReserveOverflow;
+	}
+	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		
+		//TODO
+	}
+	
+	public void openOverflowMenu() {
 		//TODO
 	}
 	

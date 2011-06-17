@@ -6,7 +6,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.renderscript.Program.TextureType;
 import android.support.v4.app.ActionBar;
 import android.support.v4.view.Menu;
 import android.text.TextUtils;
@@ -16,18 +15,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
-import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import com.actionbarsherlock.R;
+import com.actionbarsherlock.internal.view.menu.ActionMenuItem;
 import com.actionbarsherlock.internal.view.menu.ActionMenuView;
 import com.actionbarsherlock.internal.view.menu.MenuBuilder;
 
@@ -322,7 +319,7 @@ public final class ActionBarWatson extends ViewGroup {
 	}
 
 	public boolean isOverflowReserved() {
-		return (mMenuView != null) ? mMenuView.isOverflowMenuReserved() : false;
+		return (mMenuView != null) ? mMenuView.isOverflowReserved() : false;
 	}
 
 	@Override
@@ -414,7 +411,7 @@ public final class ActionBarWatson extends ViewGroup {
 		}
 	}
 	
-	public void setSelectedDropdownPosition(int position) {
+	public void setDropdownSelectedPosition(int position) {
 		mSpinner.setSelection(position);
 	}
 	
@@ -477,31 +474,21 @@ public final class ActionBarWatson extends ViewGroup {
 	}
 	
 	
-	class HomeView extends FrameLayout {
+	class HomeView extends LinearLayout {
 		private View mIconView;
 		private View mUpView;
 		
-		public HomeView() {
-			this(null);
+		public HomeView(Context context) {
+			super(context);
 		}
-		public HomeView(AttributeSet attrs) {
-			super(null, attrs);
+		public HomeView(Context context, AttributeSet attrs) {
+			super(context, attrs);
 		}
 		
 		@Override
 		protected void onFinishInflate() {
 			mUpView = findViewById(R.id.up);
 			mIconView = findViewById(R.id.home);
-		}
-		
-		@Override
-		protected void onLayout(boolean paramBoolean, int paramInt1, int paramInt2, int paramInt3, int paramInt4) {
-			//TODO
-		}
-		
-		@Override
-		protected void onMeasure(int paramInt1, int paramInt2) {
-			//TODO
 		}
 	}
 	

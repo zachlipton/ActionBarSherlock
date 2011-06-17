@@ -176,6 +176,18 @@ public class MenuBuilder implements Menu {
 		return this;
 	}
 	
+	void onItemActionRequestChanged(MenuItemImpl menuItem) {
+		onItemsChanged(false);
+	}
+	
+	void onItemVisibleChanged(MenuItemImpl paramMenuItemImpl) {
+		onItemsChanged(false);
+	}
+	
+	private void onItemsChanged(boolean paramBoolean) {
+		//TODO
+	}
+	
 	public boolean performItemAction(MenuItem item, int flags) {
 		//TODO
 		return false;

@@ -20,8 +20,8 @@ import java.util.HashMap;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.ActionBar;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ActionMode;
-import android.support.v4.view.Menu;
 import android.support.v4.view.MenuInflater;
 import android.view.View;
 import android.widget.SpinnerAdapter;
@@ -31,12 +31,12 @@ public final class ActionBarNativeImpl {
 	private ActionBarNativeImpl() {}
 	
 	/**
-	 * Simple static method abstraction to get a reference to our implementing class.
+	 * Simple static method abstraction to get an instance of our implementing class.
 	 * 
-	 * @return {@code ActionBarNative.Impl.class}
+	 * @return {@link ActionBar}
 	 */
-	public static Class<? extends ActionBar> get() {
-		return ActionBarNativeImpl.Impl.class;
+	public static ActionBar createFor(FragmentActivity activity) {
+		return new ActionBarNativeImpl.Impl(activity);
 	}
 
 	/**
@@ -45,6 +45,12 @@ public final class ActionBarNativeImpl {
 	public static final class Impl extends ActionBar implements android.app.ActionBar.TabListener {
 		/** Mapping between support listeners and native listeners. */
 		private final HashMap<OnMenuVisibilityListener, android.app.ActionBar.OnMenuVisibilityListener> mMenuListenerMap = new HashMap<OnMenuVisibilityListener, android.app.ActionBar.OnMenuVisibilityListener>();
+		
+		
+		private Impl(FragmentActivity activity) {
+			super(activity);
+		}
+		
 		
 		/**
 		 * Get the native {@link ActionBar} instance.
@@ -73,7 +79,7 @@ public final class ActionBarNativeImpl {
 
 		@Override
 		public void onTabReselected(android.app.ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-			ActionBar.TabListener listener = ((ActionBar.Tab)tab.getTag()).getTabListener();
+			ActionBar.TabListener listener = ((TabImpl)tab.getTag()).getTabListener();
 			if (listener != null) {
 				listener.onTabReselected((ActionBar.Tab)tab.getTag(), null);
 			}
@@ -81,7 +87,7 @@ public final class ActionBarNativeImpl {
 
 		@Override
 		public void onTabSelected(android.app.ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-			ActionBar.TabListener listener = ((ActionBar.Tab)tab.getTag()).getTabListener();
+			ActionBar.TabListener listener = ((TabImpl)tab.getTag()).getTabListener();
 			if (listener != null) {
 				listener.onTabSelected((ActionBar.Tab)tab.getTag(), null);
 			}
@@ -89,49 +95,10 @@ public final class ActionBarNativeImpl {
 
 		@Override
 		public void onTabUnselected(android.app.ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-			ActionBar.TabListener listener = ((ActionBar.Tab)tab.getTag()).getTabListener();
+			ActionBar.TabListener listener = ((TabImpl)tab.getTag()).getTabListener();
 			if (listener != null) {
 				listener.onTabUnselected((ActionBar.Tab)tab.getTag(), null);
 			}
-		}
-		
-		// ---------------------------------------------------------------------
-		// ACTION BAR SHERLOCK SUPPORT
-		// ---------------------------------------------------------------------
-
-		@Override
-		protected void setContentView(int layoutResId) {
-			throw new IllegalStateException("This should have been passed to super from the Activity.");
-		}
-		
-		@Override
-		protected void setContentView(View view) {
-			throw new IllegalStateException("This should have been passed to super from the Activity.");
-		}
-
-		@Override
-		protected void setContentView(View view, android.view.ViewGroup.LayoutParams params) {
-			throw new IllegalStateException("This should have been passed to super from the Activity.");
-		}
-		
-		@Override
-		protected void onMenuVisibilityChanged(boolean isVisible) {
-			throw new IllegalStateException("This should never be utilized for the native ActionBar.");
-		}
-
-		@Override
-		protected void onMenuInflated(Menu menu) {
-			throw new IllegalStateException("This should never be utilized for the native ActionBar.");
-		}
-
-		@Override
-		protected boolean requestWindowFeature(int featureId) {
-			throw new IllegalStateException("This should have been passed to super from the Activity.");
-		}
-		
-		@Override
-		protected void performAttach() {
-			throw new IllegalStateException("This should never be utilized for the native ActionBar.");
 		}
 		
 		// ---------------------------------------------------------------------
@@ -143,16 +110,16 @@ public final class ActionBarNativeImpl {
 			//We have to re-wrap the instances in every callback since the
 			//wrapped instance is needed before we could have a change to
 			//properly store it.
-			return new ActionModeWrapper(getActivity(),
+			return new NativeActionModeProxy(getActivity(),
 				getActivity().startActionMode(new android.view.ActionMode.Callback() {
 					@Override
 					public boolean onPrepareActionMode(android.view.ActionMode mode, android.view.Menu menu) {
-						return callback.onPrepareActionMode(new ActionModeWrapper(getActivity(), mode), menu);
+						return callback.onPrepareActionMode(new NativeActionModeProxy(getActivity(), mode), menu);
 					}
 					
 					@Override
 					public void onDestroyActionMode(android.view.ActionMode mode) {
-						final ActionMode actionMode = new ActionModeWrapper(getActivity(), mode);
+						final ActionMode actionMode = new NativeActionModeProxy(getActivity(), mode);
 						callback.onDestroyActionMode(actionMode);
 						
 						//Send the activity callback once the action mode callback has run
@@ -161,12 +128,12 @@ public final class ActionBarNativeImpl {
 					
 					@Override
 					public boolean onCreateActionMode(android.view.ActionMode mode, android.view.Menu menu) {
-						return callback.onCreateActionMode(new ActionModeWrapper(getActivity(), mode), menu);
+						return callback.onCreateActionMode(new NativeActionModeProxy(getActivity(), mode), menu);
 					}
 					
 					@Override
 					public boolean onActionItemClicked(android.view.ActionMode mode, android.view.MenuItem item) {
-						return callback.onActionItemClicked(new ActionModeWrapper(getActivity(), mode), item);
+						return callback.onActionItemClicked(new NativeActionModeProxy(getActivity(), mode), item);
 					}
 				})
 			);
@@ -176,7 +143,7 @@ public final class ActionBarNativeImpl {
 		// ACTION BAR SUPPORT
 		// ---------------------------------------------------------------------
 		
-		private static final class TabImpl implements ActionBar.Tab {
+		private static final class TabImpl extends ActionBar.Tab {
 			final ActionBarNativeImpl.Impl mActionBar;
 			
 			View mCustomView;
@@ -210,7 +177,6 @@ public final class ActionBarNativeImpl {
 				return ActionBar.Tab.INVALID_POSITION;
 			}
 			
-			@Override
 			public ActionBar.TabListener getTabListener() {
 				return mListener;
 			}
@@ -532,11 +498,11 @@ public final class ActionBarNativeImpl {
 		}
 	}
 
-	private static final class ActionModeWrapper extends ActionMode {
+	private static final class NativeActionModeProxy extends ActionMode {
 		private final Context mContext;
 		private final android.view.ActionMode mActionMode;
 		
-		ActionModeWrapper(Context context, android.view.ActionMode actionMode) {
+		NativeActionModeProxy(Context context, android.view.ActionMode actionMode) {
 			mContext = context;
 			mActionMode = actionMode;
 		}
