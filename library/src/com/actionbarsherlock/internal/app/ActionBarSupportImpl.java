@@ -49,17 +49,9 @@ public final class ActionBarSupportImpl extends ActionBar {
 		return new ActionBarSupportImpl(activity);
 	}
 	
-	
 	private static final int CONTEXT_DISPLAY_NORMAL = 0;
 	private static final int CONTEXT_DISPLAY_SPLIT = 1;
 	private static final DecelerateInterpolator sFadeOutInterpolator = new DecelerateInterpolator();
-	
-	/** Maximum action bar items in portrait mode. */
-	private static final int MAX_ACTION_BAR_ITEMS_PORTRAIT = 3;
-	
-	/** Maximum action bar items in landscape mode. */
-	private static final int MAX_ACTION_BAR_ITEMS_LANDSCAPE = 4;
-	
 	
 	private ActionMode mActionMode;
 	private ActionBarWatson mActionView;
@@ -288,7 +280,23 @@ public final class ActionBarSupportImpl extends ActionBar {
 
 	@Override
 	public void removeTabAt(int position) {
-		//TODO
+		//Get the selected tab position before any removal and reodering occurs
+		int selectedPosition = (mSelectedTab != null) ? mSelectedTab.getPosition() : mSavedTabPosition;
+		
+		//Remove the tab
+		mActionView.removeTabAt(position);
+		mTabs.remove(position);
+		
+		//Update the positions of all tabs after the removed one
+		final int count = mTabs.size();
+		for (int i = position; i < count; i++) {
+			mTabs.get(i).setPosition(i);
+		}
+		
+		if ((selectedPosition == position) && !mTabs.isEmpty()) {
+			//Select the previous (or first) tab
+			selectTab(mTabs.get(Math.max(0, position - 1)));
+		}
 	}
 
 	@Override
@@ -330,9 +338,7 @@ public final class ActionBarSupportImpl extends ActionBar {
 
 	@Override
 	public void setDisplayOptions(int newOptions, int mask) {
-		int oldOptions = (mask ^ 0xFFFFFFFF) & mActionView.getDisplayOptions();
-		newOptions &= mask;
-		mActionView.setDisplayOptions(newOptions | oldOptions);
+		mActionView.setDisplayOptions((mActionView.getDisplayOptions() & ~mask) | newOptions);
 	}
 
 	@Override

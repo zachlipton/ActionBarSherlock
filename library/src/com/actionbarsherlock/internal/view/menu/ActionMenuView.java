@@ -1,13 +1,16 @@
 package com.actionbarsherlock.internal.view.menu;
 
+import java.util.List;
 import com.actionbarsherlock.R;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -19,17 +22,37 @@ public class ActionMenuView extends LinearLayout implements MenuView, MenuBuilde
 	private float mDividerPadding;
 	private int mMaxItems;
 	private MenuBuilder mMenu;
-	private OverflowMenuButton mOverflowButton;
+	//private OverflowMenuButton mOverflowButton;
+	//private MenuPopupHelper mOverflowPopup;
+	//private OpenOverflowRunnable mPostedOpenRunnable;
 	private boolean mReserveOverflow;
+	//private final Runnable mShowOverflow;
 	private int mWidthLimit;
 	
 	public ActionMenuView(Context context) {
-		super(context);
+		this(context, null);
 	}
-	
 	public ActionMenuView(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		
+		//mShowOverflow = new Runnable() {
+		//	@Override
+		//	public void run() {
+		//		showOverflowMenu();
+		//	}
+		//};
+		
 		mMaxItems = getMaxActionButtons();
+		mReserveOverflow = false;//(getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+		mWidthLimit = getResources().getDisplayMetrics().widthPixels / 2;
+		
+		TypedArray a = context.obtainStyledAttributes(R.styleable.SherlockTheme);
+		mDivider = a.getDrawable(R.styleable.SherlockTheme_dividerVertical);
+		a.recycle();
+		
+		mDividerPadding = DIVIDER_PADDING * getResources().getDisplayMetrics().density;
+		
+		setBaselineAligned(false);
 	}
 	
 	private boolean addItemView(boolean something, ActionMenuItemView itemView) {
@@ -55,7 +78,10 @@ public class ActionMenuView extends LinearLayout implements MenuView, MenuBuilde
 	}
 	
 	private LinearLayout.LayoutParams makeDividerLayoutParams() {
-		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT);
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+			LinearLayout.LayoutParams.FILL_PARENT,
+			LinearLayout.LayoutParams.FILL_PARENT
+		);
 		params.topMargin = params.bottomMargin = (int)mDividerPadding;
 		return params;
 	}
@@ -68,9 +94,23 @@ public class ActionMenuView extends LinearLayout implements MenuView, MenuBuilde
 		return view;
 	}
 	
+	private boolean removeChildrenUntil(int startAt, View paramView, boolean removeDivider) {
+		//TODO
+		final int count = getChildCount();
+		int index = startAt;
+		while (index < count) {
+			break;
+		}
+		
+		return false;
+	}
+	
 	@Override
 	protected LinearLayout.LayoutParams generateDefaultLayoutParams() {
-		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT);
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+			LinearLayout.LayoutParams.FILL_PARENT,
+			LinearLayout.LayoutParams.FILL_PARENT
+		);
 		params.gravity = Gravity.CENTER_VERTICAL;
 		return params;
 	}
@@ -88,7 +128,7 @@ public class ActionMenuView extends LinearLayout implements MenuView, MenuBuilde
 	}
 	
 	public View getOverflowButton() {
-		return mOverflowButton;
+		return null;//mOverflowButton;
 	}
 
 	@Override
@@ -103,11 +143,17 @@ public class ActionMenuView extends LinearLayout implements MenuView, MenuBuilde
 
 	@Override
 	public void initialize(MenuBuilder menu, int menuType) {
+		if (mReserveOverflow) {
+			//TODO
+		}
+		
 		menu.setActionWidthLimit(mWidthLimit);
 		menu.setMaxActionItems(mMaxItems);
 		if (mMenu != menu) {
 			mMenu = menu;
 			updateChildren(true);
+		} else {
+			updateChildren(false);
 		}
 	}
 	
@@ -134,7 +180,32 @@ public class ActionMenuView extends LinearLayout implements MenuView, MenuBuilde
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		
-		//TODO
+		mReserveOverflow = false;//(newConfig.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+		mMaxItems = getMaxActionButtons();
+		mWidthLimit = getResources().getDisplayMetrics().widthPixels / 2;
+		
+		if (mMenu != null) {
+			mMenu.setMaxActionItems(mMaxItems);
+			updateChildren(false);
+		}
+		
+		//if ((mOverflowPopup != null) && mOverflowPopup.isShowing()) {
+		//	mOverflowPopup.dismiss();
+		//	post(mShowOverflow);
+		//}
+	}
+	
+	@Override
+	public void onDetachedFromWindow() {
+		super.onDetachedFromWindow();
+		
+		//if ((mOverflowPopup != null) && mOverflowPopup.isShowing()) {
+		//	mOverflowPopup.dismiss();
+		//}
+		//removeCallbacks(mShowOverflow);
+		//if (mPostedOpenRunnable != null) {
+		//	removeCallbacks(mPostedOpenRunnable);
+		//}
 	}
 	
 	public void openOverflowMenu() {
@@ -142,20 +213,65 @@ public class ActionMenuView extends LinearLayout implements MenuView, MenuBuilde
 	}
 	
 	public void setOverflowReserved(boolean reserved) {
-		mReserveOverflow = reserved;
+		//TODO mReserveOverflow = reserved;
 	}
 	
 	public boolean showOverflowMenu() {
-		if (mOverflowButton != null) {
-			//TODO dispatch openOptionsMenu() to activity
-			return true;
-		}
+		//if (mOverflowButton != null) {
+		//	//TODO dispatch openOptionsMenu() to activity
+		//	return true;
+		//}
 		return false;
 	}
 
 	@Override
 	public void updateChildren(boolean cleared) {
-		//TODO
+		List<MenuItemImpl> menuItems = mMenu.getActionItems(mReserveOverflow);
+		final int menuItemCount = menuItems.size();
+		boolean hasNextDivider = false;
+		int viewIndex = 0;
+		int menuItemIndex = 0;
+		while (menuItemIndex < menuItemCount) {
+			final MenuItemImpl menuItem = menuItems.get(menuItemIndex);
+			boolean hasDivider = false;
+			
+			if (hasNextDivider) {
+				if (!isDivider(getChildAt(viewIndex))) {
+					addView(makeDividerView(), viewIndex, makeDividerLayoutParams());
+				}
+				viewIndex += 1;
+				hasDivider = true;
+				hasNextDivider = false;
+			}
+
+			View menuItemView = null;
+			if (menuItem.getActionView() != null) {
+				menuItemView = menuItem.getActionView();
+				menuItemView.setLayoutParams(makeActionViewLayoutParams(menuItemView));
+			} else {
+				ActionMenuItemView actionMenuItem = (ActionMenuItemView)menuItem.getItemView(MenuBuilder.TYPE_SHERLOCK, this);
+				actionMenuItem.setItemInvoker(this);
+				hasDivider = (menuItemIndex > 0) && !hasDivider && actionMenuItem.hasText() && (menuItem.getIcon() == null);
+				hasNextDivider = actionMenuItem.hasText();
+				menuItemView = actionMenuItem;
+			}
+			
+			if (removeChildrenUntil(viewIndex, menuItemView, hasDivider)) {
+				addView(makeDividerView(), viewIndex, makeDividerLayoutParams());
+			}
+			if (hasDivider) {
+				viewIndex += 1;
+			}
+			if (getChildAt(viewIndex) != menuItemView) {
+				addView(menuItemView, viewIndex);
+			}
+			viewIndex += 1;
+			menuItemIndex += 1;
+		}
+		
+		//if (mOverflowButton != null) {
+		//	//TODO add divider and overflow
+		//}
 	}
 	
 	

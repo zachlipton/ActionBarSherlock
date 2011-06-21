@@ -69,6 +69,8 @@
         <attr name="dropdownListPreferredItemHeight" format="dimension" />
         
         <attr name="actionSpinnerItemStyle" format="reference" />
+        
+        <attr name="dividerVertical" format="reference" />
 	</declare-styleable>
 	
     <!-- Attributes used to style the Action Bar. -->

@@ -20,13 +20,17 @@ package com.actionbarsherlock.internal.view.menu;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import com.actionbarsherlock.R;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.drawable.Drawable;
 import android.support.v4.view.Menu;
 import android.support.v4.view.MenuItem;
+import android.view.ContextMenu;
+import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,8 +49,21 @@ public class MenuBuilder implements Menu {
 	private static final int DEFAULT_ORDER = 0;
 	
 	public static final int NUM_TYPES = 2;
-	public static final int TYPE_WATSON = 0;
+	public static final int TYPE_SHERLOCK = 0;
 	public static final int TYPE_NATIVE = 1;
+	
+	static final int[] LAYOUT_RES_FOR_TYPE = new int[] {
+		R.layout.action_menu_layout,
+		-1
+	};
+	static final int[] ITEM_LAYOUT_RES_FOR_TYPE = new int[] {
+		R.layout.action_menu_item_layout,
+		-1
+	};
+	private static final int[] THEME_RES_FOR_TYPE = new int [] {
+		0,/*TODO*/
+		-1
+	};
 	
 	
 	
@@ -64,7 +81,9 @@ public class MenuBuilder implements Menu {
 	private final Context mContext;
 	
 	/** Child {@link ActionBarMenuItem} items. */
-	private final List<MenuItemImpl> mItems;
+	private List<MenuItemImpl> mItems;
+	private List<MenuItemImpl> mActionItems;
+	private List<MenuItemImpl> mNonActionItems;
 	
 	private int mMaxActionItems;
 	
@@ -84,19 +103,36 @@ public class MenuBuilder implements Menu {
 	 * @param context Context used if resource resolution is required.
 	 */
 	public MenuBuilder(Context context) {
-		mContext = context;
-		mItems = new ArrayList<MenuItemImpl>();
 		mMenuTypes = new MenuType[NUM_TYPES];
+		
+		mContext = context;
+		
+		mItems = new ArrayList<MenuItemImpl>();
+		mActionItems = new ArrayList<MenuItemImpl>();
+		mNonActionItems = new ArrayList<MenuItemImpl>();
 	}
 
 	
+	
+	private void flagActionItems(boolean includeOverflow) {
+		//TODO
+	}
 	
 	public void setCallback(Callback callback) {
 		mCallback = callback;
 	}
 	
+	public List<MenuItemImpl> getActionItems(boolean includeOverflow) {
+		flagActionItems(includeOverflow);
+		return mActionItems;
+	}
+	
 	public Callback getCallback() {
 		return mCallback;
+	}
+	
+	public Context getContext() {
+		return this.mContext;
 	}
 	
 	/**
@@ -131,10 +167,6 @@ public class MenuBuilder implements Menu {
 	
 	final MenuItemImpl remove(int index) {
 		return this.mItems.remove(index);
-	}
-	
-	final Context getContext() {
-		return this.mContext;
 	}
 	
 	MenuType getMenuType(int menuType) {
@@ -398,6 +430,14 @@ public class MenuBuilder implements Menu {
 			mMenuType = menuType;
 		}
 		
+		
+		LayoutInflater getInflater() {
+			if (mInflater == null) {
+				Context context = new ContextThemeWrapper(getContext(), MenuBuilder.THEME_RES_FOR_TYPE[mMenuType]);
+				mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			}
+			return mInflater;
+		}
 		
 		MenuView getMenuView(ViewGroup parent) {
 			//TODO

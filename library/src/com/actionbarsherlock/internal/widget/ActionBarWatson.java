@@ -202,32 +202,31 @@ public final class ActionBarWatson extends ViewGroup {
 	private int measureChildView(View view, int p1, int p2, int p3) {
 		int i = View.MeasureSpec.makeMeasureSpec(p1, View.MeasureSpec.AT_MOST);
 		view.measure(i, p2);
-		int j = view.getMeasuredWidth();
-		return p1 - j - p3;
+		return p1 - view.getMeasuredWidth() - p3;
 		//TODO optimize for readability
 	}
 
 	private int positionChild(View paramView, int paramInt1, int paramInt2, int paramInt3) {
-		int i = paramView.getMeasuredWidth();
-		int j = paramView.getMeasuredHeight();
-		int k = (paramInt3 - j) / 2;
+		int measuredWidth = paramView.getMeasuredWidth();
+		int measuredHeight = paramView.getMeasuredHeight();
+		int k = (paramInt3 - measuredHeight) / 2;
 		int m = paramInt2 + k;
-		int n = paramInt1 + i;
-		int i1 = m + j;
+		int n = paramInt1 + measuredWidth;
+		int i1 = m + measuredHeight;
 		paramView.layout(paramInt1, m, n, i1);
-		return i;
+		return measuredWidth;
 		//TODO optimize for readability
 	}
 
 	private int positionChildInverse(View paramView, int paramInt1, int paramInt2, int paramInt3) {
-		int i = paramView.getMeasuredWidth();
-		int j = paramView.getMeasuredHeight();
-		int k = (paramInt3 - j) / 2;
+		int measuredWidth = paramView.getMeasuredWidth();
+		int meausredHeight = paramView.getMeasuredHeight();
+		int k = (paramInt3 - meausredHeight) / 2;
 		int m = paramInt2 + k;
-		int n = paramInt1 - i;
-		int i1 = m + j;
+		int n = paramInt1 - measuredWidth;
+		int i1 = m + meausredHeight;
 		paramView.layout(n, m, paramInt1, i1);
-		return i;
+		return measuredWidth;
 		//TODO optimize for readability
 	}
 	
@@ -299,13 +298,13 @@ public final class ActionBarWatson extends ViewGroup {
 
 	public void initIndeterminateProgress() {
 		mIndeterminateProgressView = new ProgressBar(getContext(), null, mIndeterminateProgressStyle);
-		//TODO? mIndeterminateProgressView.setId(16908964);
+		mIndeterminateProgressView.setId(R.id.progress_circular);
 		addView(mIndeterminateProgressView);
 	}
 
 	public void initProgress() {
 		mProgressView = new ProgressBar(getContext(), null, mProgressStyle);
-		//TODO? mProgressView.setId(16908965);
+		mProgressView.setId(R.id.progress_horizontal);
 		mProgressView.setMax(10000);
 		addView(mProgressView);
 	}
@@ -423,7 +422,7 @@ public final class ActionBarWatson extends ViewGroup {
 				removeView(mMenuView);
 			}
 			
-			mMenuView = (ActionMenuView)mOptionsMenu.getMenuView(MenuBuilder.TYPE_WATSON, null);
+			mMenuView = (ActionMenuView)mOptionsMenu.getMenuView(MenuBuilder.TYPE_SHERLOCK, null);
 			mMenuView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
 			addView(mMenuView);
 		}

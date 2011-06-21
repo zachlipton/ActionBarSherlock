@@ -117,22 +117,22 @@ public class ActionMenuItem implements MenuItem {
 
 	@Override
 	public boolean isCheckable() {
-		return (mFlags & 0x1) != 0;
+		return (mFlags & CHECKABLE) != 0;
 	}
 
 	@Override
 	public boolean isChecked() {
-		return (mFlags & 0x2) != 0;
+		return (mFlags & CHECKED) != 0;
 	}
 
 	@Override
 	public boolean isEnabled() {
-		return (mFlags & 0x10) != 0;
+		return (mFlags & ENABLED) != 0;
 	}
 
 	@Override
 	public boolean isVisible() {
-		return (mFlags & 0x8) == 0;
+		return (mFlags & HIDDEN) == 0;
 	}
 
 	@Override
@@ -153,62 +153,38 @@ public class ActionMenuItem implements MenuItem {
 
 	@Override
 	public MenuItem setCheckable(boolean checkable) {
-		int i = this.mFlags & 0xFFFFFFFE;
-		if (checkable)
-			;
-		for (int j = 1;; j = 0) {
-			int k = i | j;
-			this.mFlags = k;
-			return this;
-		}
+		mFlags = (mFlags & ~CHECKABLE) | (checkable ? CHECKABLE : 0);
+		return this;
 	}
 
 	@Override
 	public MenuItem setChecked(boolean checked) {
-		int i = this.mFlags & 0xFFFFFFFD;
-		if (checked)
-			;
-		for (int j = 2;; j = 0) {
-			int k = i | j;
-			this.mFlags = k;
-			return this;
-		}
+		mFlags = (mFlags & ~CHECKED) | (checked ? CHECKED : 0);
+		return this;
 	}
 
 	@Override
 	public MenuItem setEnabled(boolean enabled) {
-		int i = this.mFlags & 0xFFFFFFEF;
-		if (enabled)
-			;
-		for (int j = 16;; j = 0) {
-			int k = i | j;
-			this.mFlags = k;
-			return this;
-		}
+		mFlags = (mFlags & ~ENABLED) | (enabled ? ENABLED : 0);
+		return this;
 	}
 
 	public ActionMenuItem setExclusiveCheckable(boolean exclusive) {
-		int i = this.mFlags & 0xFFFFFFFB;
-		if (exclusive)
-			;
-		for (int j = 4;; j = 0) {
-			int k = i | j;
-			this.mFlags = k;
-			return this;
-		}
+		mFlags = (mFlags & ~EXCLUSIVE) | (exclusive ? EXCLUSIVE : 0);
+		return this;
 	}
 
 	@Override
 	public MenuItem setIcon(int resId) {
 		mIconResId = resId;
-		mIconDrawable = mContext.getResources().getDrawable(resId);
+		mIconDrawable = mContext.getResources().getDrawable(mIconResId);
 		return this;
 	}
 
 	@Override
 	public MenuItem setIcon(Drawable icon) {
 		mIconDrawable = icon;
-		mIconResId = 0;
+		mIconResId = NO_ICON;
 		return this;
 	}
 
@@ -231,8 +207,13 @@ public class ActionMenuItem implements MenuItem {
 	}
 
 	@Override
-	public android.view.MenuItem setOnMenuItemClickListener(android.view.MenuItem.OnMenuItemClickListener listener) {
-		// TODO Auto-generated method stub
+	public android.view.MenuItem setOnMenuItemClickListener(final android.view.MenuItem.OnMenuItemClickListener listener) {
+		mClickListener = new MenuItem.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				return listener.onMenuItemClick(item);
+			}
+		};
 		return null;
 	}
 
@@ -244,7 +225,9 @@ public class ActionMenuItem implements MenuItem {
 	}
 
 	@Override
-	public void setShowAsAction(int layoutResId) {}
+	public void setShowAsAction(int layoutResId) {
+		//No op
+	}
 
 	@Override
 	public MenuItem setTitle(int resId) {
@@ -266,13 +249,7 @@ public class ActionMenuItem implements MenuItem {
 
 	@Override
 	public MenuItem setVisible(boolean visible) {
-		int i = this.mFlags & 0x8;
-		if (visible)
-			;
-		for (int j = 0;; j = 8) {
-			int k = i | j;
-			this.mFlags = k;
-			return this;
-		}
+		mFlags = (mFlags & HIDDEN) | (visible ? 0 : HIDDEN);
+		return this;
 	}
 }

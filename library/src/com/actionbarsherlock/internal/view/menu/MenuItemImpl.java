@@ -18,6 +18,7 @@
 package com.actionbarsherlock.internal.view.menu;
 
 import java.lang.ref.WeakReference;
+import com.actionbarsherlock.internal.view.menu.MenuView.ItemView;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
@@ -30,13 +31,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 
-/**
- * An implementation of the {@link android.view.MenuItem} interface for use in
- * inflating menu XML resources to be added to a third-party action bar. 
- * 
- * @author Jake Wharton <jakewharton@gmail.com>
- * @see <a href="http://android.git.kernel.org/?p=platform/frameworks/base.git;a=blob;f=core/java/com/android/internal/view/menu/MenuItemImpl.java">com.android.internal.view.menu.MenuItemImpl</a>
- */
 public final class MenuItemImpl implements MenuItem {
 	private static final String TAG = "MenuItemImpl";
 	
@@ -190,6 +184,25 @@ public final class MenuItemImpl implements MenuItem {
 	
 	public void setItemView(int type, MenuView.ItemView itemView) {
 		mItemViews[type] = new WeakReference<MenuView.ItemView>(itemView);
+	}
+	
+	View getItemView(int menuType, ViewGroup parent) {
+		if (!hasItemView(menuType)) {
+			MenuView.ItemView view = createItemView(menuType, parent);
+			mItemViews[menuType] = new WeakReference<MenuView.ItemView>(view);
+		}
+		return (View)mItemViews[menuType].get();
+	}
+	
+	private MenuView.ItemView createItemView(int menuType, ViewGroup parent) {
+		int layoutResId = MenuBuilder.ITEM_LAYOUT_RES_FOR_TYPE[menuType];
+		MenuView.ItemView view = (MenuView.ItemView)getLayoutInflater(menuType).inflate(layoutResId, parent, false);
+		view.initialize(this, menuType);
+		return view;
+	}
+	
+	public LayoutInflater getLayoutInflater(int menuType) {
+		return mMenu.getMenuType(menuType).getInflater();
 	}
 	
 	
@@ -503,7 +516,7 @@ public final class MenuItemImpl implements MenuItem {
 
 	@Override
 	public MenuItem setActionView(int resId) {
-		ViewGroup viewGroup = (ViewGroup)mMenu.getMenuView(MenuBuilder.TYPE_WATSON, null);
+		ViewGroup viewGroup = (ViewGroup)mMenu.getMenuView(MenuBuilder.TYPE_SHERLOCK, null);
 		View view = LayoutInflater.from(mMenu.getContext()).inflate(resId, viewGroup, false);
 		return setActionView(view);
 	}

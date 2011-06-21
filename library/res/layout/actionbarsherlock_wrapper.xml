@@ -11,7 +11,7 @@
 	    android:layout_height="?attr/actionBarSize"
 		/>
 	<FrameLayout
-		android:id="@id/actionbarsherlock_content"
+		android:id="@+id/actionbarsherlock_content"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 		/>

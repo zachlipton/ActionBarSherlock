@@ -27,6 +27,7 @@
         <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_dark</item>
         <item name="popupMenuStyle">@style/Widget.Sherlock.PopupMenu</item>
 		<item name="selectableItemBackground">@color/actionbarwatson_item_bg</item>
+		<item name="dividerVertical">@drawable/list_divider_holo_dark</item>
 	</style>
 	
     <style name="Theme.Sherlock.Light" parent="android:style/Theme.Light">
@@ -55,5 +56,6 @@
         <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_light</item>
         <item name="popupMenuStyle">@style/Widget.Sherlock.Light.PopupMenu</item>
 		<item name="selectableItemBackground">@color/actionbarwatson_item_bg</item>
+		<item name="dividerVertical">@drawable/list_divider_holo_light</item>
 	</style>
 </resources>

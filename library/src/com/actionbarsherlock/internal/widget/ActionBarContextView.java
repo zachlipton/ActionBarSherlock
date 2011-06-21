@@ -214,7 +214,7 @@ public class ActionBarContextView extends ViewGroup implements Animation.Animati
 			}
 		});
 		
-		mMenuView = (ActionMenuView)((MenuBuilder)mode.getMenu()).getMenuView(MenuBuilder.TYPE_WATSON, this);
+		mMenuView = (ActionMenuView)((MenuBuilder)mode.getMenu()).getMenuView(MenuBuilder.TYPE_SHERLOCK, this);
 		mMenuView.setOverflowReserved(true);
 		mMenuView.updateChildren(false);
 		addView(mMenuView);

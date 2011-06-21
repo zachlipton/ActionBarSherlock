@@ -15,7 +15,7 @@ public class ActionMenuItemView extends LinearLayout implements MenuView.ItemVie
 	private MenuItemImpl mItemData;
 	private MenuBuilder.ItemInvoker mItemInvoker;
 	private Button mTextButton;
-	//UNUSED private CharSequence mTitle;
+	private CharSequence mTitle;
 
 	public ActionMenuItemView(Context context) {
 		this(context, null);
@@ -109,10 +109,10 @@ public class ActionMenuItemView extends LinearLayout implements MenuView.ItemVie
 
 	@Override
 	public void setTitle(CharSequence title) {
-		//UNUSED mTitle = title;
+		mTitle = title;
 		setContentDescription(title);
 		if ((mImageButton.getDrawable() != null) || mItemData.showsTextAsAction()) {
-			mTextButton.setText(title);
+			mTextButton.setText(mTitle);
 			mTextButton.setVisibility(View.VISIBLE);
 		}
 	}
@@ -121,5 +121,4 @@ public class ActionMenuItemView extends LinearLayout implements MenuView.ItemVie
 	public boolean showsIcon() {
 		return true;
 	}
-
 }
