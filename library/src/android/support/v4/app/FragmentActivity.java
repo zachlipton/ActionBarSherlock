@@ -169,6 +169,10 @@ public class FragmentActivity extends Activity {
 		}
 	}
 	
+	public boolean getWindow__hasFeature(long featureId) {
+		return (mWindowFlags & featureId) == featureId;
+	}
+	
 	// ------------------------------------------------------------------------
 	// HOOKS INTO ACTIVITY
 	// ------------------------------------------------------------------------

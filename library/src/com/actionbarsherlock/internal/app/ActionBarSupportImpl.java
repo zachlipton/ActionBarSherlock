@@ -26,14 +26,17 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ActionMode;
 import android.support.v4.view.MenuInflater;
 import android.support.v4.view.MenuItem;
+import android.support.v4.view.Window;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.SpinnerAdapter;
 import com.actionbarsherlock.R;
+import com.actionbarsherlock.internal.view.animation.AnimationGroup;
 import com.actionbarsherlock.internal.view.menu.MenuBuilder;
 import com.actionbarsherlock.internal.widget.ActionBarContainer;
 import com.actionbarsherlock.internal.widget.ActionBarContextView;
@@ -55,19 +58,21 @@ public final class ActionBarSupportImpl extends ActionBar {
 	
 	private ActionMode mActionMode;
 	private ActionBarView mActionView;
+	final Animation.AnimationListener[] mAfterAnimation;
 	private ActionBarContainer mContainerView;
-	private FrameLayout mContentView;
+	private View mContentView;
 	private Context mContext;
 	private int mContextDisplayMode;
 	private Animation mCurrentAnim;
+	final Animation.AnimationListener mHideListener;
 	private LinearLayout mLowerContextView;
 	private ArrayList<ActionBar.OnMenuVisibilityListener> mMenuVisibilityListeners;
 	private int mSavedTabPosition;
 	private TabImpl mSelectedTab;
 	private boolean mShowHideAnimationEnabled;
+	final Animation.AnimationListener mShowListener;
 	private ArrayList<TabImpl> mTabs;
 	private ActionBarContextView mUpperContextView;
-	private boolean mIsActionItemTextEnabled;
 	
 	
 	private ActionBarSupportImpl(FragmentActivity activity) {
@@ -77,6 +82,82 @@ public final class ActionBarSupportImpl extends ActionBar {
 		mSavedTabPosition = -1;
 		mMenuVisibilityListeners = new ArrayList<OnMenuVisibilityListener>();
 		//TODO
+		mAfterAnimation = new Animation.AnimationListener[2];
+		mAfterAnimation[0] = new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+				//No op
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+				//No op
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				if (mActionView != null) {
+					mActionView.removeAllViews();
+				}
+				mCurrentAnim = null;
+				//TODO? ActionBarImpl.access$200(this.this$0, 0);
+			}
+		};
+		mAfterAnimation[1] = new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+				//No op
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+				//No op
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				mCurrentAnim = null;
+				//TODO? ActionBarImpl.access$200(this.this$0, 1);
+			}
+		};
+		mHideListener = new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+				//No op
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+				//No op
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				if (mActionView != null) {
+					mActionView.setTranslationY(0);
+				}
+				mContainerView.setVisibility(View.GONE);
+				mContainerView.setTransitioning(false);
+				mCurrentAnim = null;
+			}
+		};
+		mShowListener = new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+				//No op
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+				//No op
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				mCurrentAnim = null;
+				mContainerView.requestLayout();
+			}
+		};
 		
 		mContentView = (FrameLayout)activity.findViewById(R.id.actionbarsherlock_content);
 	}
@@ -85,8 +166,28 @@ public final class ActionBarSupportImpl extends ActionBar {
 	
 	private long animateTo(int position) {
 		show();
-		//TODO
-		return 0;
+		AnimationGroup animations = new AnimationGroup();
+		
+		View target = mContainerView.getChildAt(position);
+		target.setVisibility(View.VISIBLE);
+		AlphaAnimation targetAnimation = new AlphaAnimation(0f, 1f);
+		target.setAnimation(targetAnimation);
+		animations.addAnimation(targetAnimation);
+		
+		final int childCount = mContainerView.getChildCount();
+		for (int i = 0; i < childCount; i++) {
+			if (i != position) {
+				View other = mContainerView.getChildAt(i);
+				AlphaAnimation otherAnimation = new AlphaAnimation(1f, 0f);
+				otherAnimation.setInterpolator(sFadeOutInterpolator);
+				other.setAnimation(otherAnimation);
+				animations.addAnimation(otherAnimation);
+			}
+		}
+		
+		mCurrentAnim = animations;
+		mCurrentAnim.start();
+		return mCurrentAnim.getDuration();
 	}
 	
 	private void cleanupTabs() {
@@ -125,11 +226,15 @@ public final class ActionBarSupportImpl extends ActionBar {
 		mLowerContextView = (LinearLayout)view.findViewById(R.id.lower_action_context_bar);
 		mContainerView = (ActionBarContainer)view.findViewById(R.id.action_bar_container);
 		if ((mActionView == null) || (mUpperContextView == null) || (mContainerView == null)) {
-			throw new IllegalStateException(/*TODO*/);
+			throw new IllegalStateException(getClass().getSimpleName() + " can only be used with a screen_*.xml layout.");
 		}
 		
 		mActionView.setContextView(mUpperContextView);
 		mContextDisplayMode = (mLowerContextView == null) ? CONTEXT_DISPLAY_NORMAL : CONTEXT_DISPLAY_SPLIT;
+		
+		if (!getActivity().getWindow__hasFeature(Window.FEATURE_ACTION_BAR_OVERLAY)) {
+			mContentView = (FrameLayout)view.findViewById(R.id.content);
+		}
 	}
 	
 	@Override
@@ -250,7 +355,29 @@ public final class ActionBarSupportImpl extends ActionBar {
 
 	@Override
 	public void hide() {
-		//TODO
+		if (mCurrentAnim != null) {
+			mCurrentAnim.cancel();
+		}
+		if (mContainerView.getVisibility() == View.VISIBLE) {
+			if (mShowHideAnimationEnabled) {
+				AnimationGroup animations = new AnimationGroup();
+				
+				AlphaAnimation containerAnimation = new AlphaAnimation(1f, 0f);
+				mContainerView.setTransitioning(true);
+				mContainerView.setAnimation(containerAnimation);
+				animations.addAnimation(containerAnimation);
+				
+				if (mContentView != null) {
+					//TODO
+				}
+				
+				mCurrentAnim = animations;
+				mCurrentAnim.setAnimationListener(mHideListener);
+				mCurrentAnim.start();
+			} else {
+				mHideListener.onAnimationEnd(null);
+			}
+		}
 	}
 
 	@Override
@@ -390,7 +517,7 @@ public final class ActionBarSupportImpl extends ActionBar {
 		switch (mActionView.getNavigationMode()) {
 			default:
 			case ActionBar.NAVIGATION_MODE_STANDARD:
-				throw new IllegalStateException(/*TODO*/);
+				throw new IllegalStateException();
 				
 			case ActionBar.NAVIGATION_MODE_TABS:
 				selectTab(mTabs.get(position));
@@ -430,7 +557,29 @@ public final class ActionBarSupportImpl extends ActionBar {
 
 	@Override
 	public void show() {
-		//TODO
+		if (mCurrentAnim != null) {
+			mCurrentAnim.cancel();
+		}
+		if (mContainerView.getVisibility() == View.GONE) {
+			if (mShowHideAnimationEnabled) {
+				AnimationGroup animations = new AnimationGroup();
+				
+				AlphaAnimation containerAnimation = new AlphaAnimation(0f, 1f);
+				mContainerView.setTransitioning(true);
+				mContainerView.setAnimation(containerAnimation);
+				animations.addAnimation(containerAnimation);
+				
+				if (mContentView != null) {
+					//TODO
+				}
+				
+				mCurrentAnim = animations;
+				mCurrentAnim.setAnimationListener(mShowListener);
+				mCurrentAnim.start();
+			} else {
+				mShowListener.onAnimationEnd(null);
+			}
+		}
 	}
 
 	@Override
@@ -700,8 +849,4 @@ public final class ActionBarSupportImpl extends ActionBar {
 		}
 	}
 	*/
-
-	public void forceActionItemText() {
-		mIsActionItemTextEnabled = true;
-	}
 }

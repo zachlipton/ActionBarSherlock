@@ -11,8 +11,10 @@ public class AnimationGroup extends Animation {
 	private final Animation.AnimationListener mListener = new Animation.AnimationListener() {
 		@Override
 		public void onAnimationStart(Animation animation) {
+			if (mStarted == 0) {
+				mExternalListener.onAnimationStart(animation);
+			}
 			mStarted += 1;
-			mExternalListener.onAnimationStart(animation);
 		}
 		
 		@Override
@@ -53,6 +55,17 @@ public class AnimationGroup extends Animation {
 		for (Animation animation : mAnimations) {
 			animation.cancel();
 		}
+	}
+
+	@Override
+	public long getDuration() {
+		long max = 0;
+		for (Animation animation : mAnimations) {
+			if (animation.getDuration() > max) {
+				max = animation.getDuration();
+			}
+		}
+		return max;
 	}
 
 	@Override
