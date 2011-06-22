@@ -107,9 +107,12 @@ public class FragmentActivity extends Activity {
 		}
 	};
 	
+	boolean mAttached;
 	boolean mResumed;
 	boolean mStopped;
 	boolean mReallyStopped;
+	
+	private long mWindowFlags = 0;
 
 	boolean mOptionsMenuInvalidated;
 	boolean mOptionsMenuCreateResult;
@@ -139,6 +142,7 @@ public class FragmentActivity extends Activity {
 	
 	public FragmentActivity() {
 		super();
+		mAttached = false;
 		
 		//Load the appropriate action bar handler and menu
 		if (IS_HONEYCOMB) {
@@ -148,6 +152,20 @@ public class FragmentActivity extends Activity {
 			mActionBar = ActionBarSupportImpl.createFor(this);
 			mActionBarMenu = new MenuBuilder(this);
 			mActionBarMenu.setCallback(mMenuCallback);
+		}
+	}
+	
+	
+	void ensureSupportActionBarAttached() {
+		if (!mAttached) {
+			if ((mWindowFlags & Window.FEATURE_ACTION_BAR_OVERLAY) == Window.FEATURE_ACTION_BAR_OVERLAY) {
+				super.setContentView(R.layout.screen_action_bar_overlay);
+			} else {
+				super.setContentView(R.layout.screen_action_bar);
+			}
+			mAttached = true;
+			
+			((ActionBarSupportImpl)mActionBar).init(getWindow().getDecorView());
 		}
 	}
 	
@@ -165,9 +183,14 @@ public class FragmentActivity extends Activity {
 	 */
 	public boolean requestWindowFeature(long featureId) {
 		if (!IS_HONEYCOMB) {
-			ActionBarSupportImpl actionBar = (ActionBarSupportImpl)mActionBar;
+			//Only allow requests if we haven't already attached because unlike
+			//the native WindowImpl, we cannot change the layout at will.
+			if (mAttached) {
+				return false;
+			}
+			
 			if (featureId == Window.FEATURE_ACTION_BAR_OVERLAY) {
-				// TODO Make action bar partially transparent
+				mWindowFlags |= featureId;
 				return true;
 			}
 			if (featureId == Window.FEATURE_ACTION_MODE_OVERLAY) {
@@ -175,9 +198,11 @@ public class FragmentActivity extends Activity {
 				return true;
 			}
 			if (featureId == Window.FEATURE_ENABLE_ACTION_BAR_WATSON_TEXT) {
-				actionBar.forceActionItemText();
+				// TODO Force action item text
 				return true;
 			}
+			
+			return false;
 		}
 		return super.requestWindowFeature((int)featureId);
 	}
@@ -200,6 +225,7 @@ public class FragmentActivity extends Activity {
 	@Override
 	public void setContentView(int layoutResId) {
 		if ((mActionBar != null) && !IS_HONEYCOMB) {
+			ensureSupportActionBarAttached();
 			FrameLayout contentView = (FrameLayout)findViewById(R.id.actionbarsherlock_content);
 			contentView.removeAllViews();
 			getLayoutInflater().inflate(layoutResId, contentView, true);
@@ -211,6 +237,7 @@ public class FragmentActivity extends Activity {
 	@Override
 	public void setContentView(View view, LayoutParams params) {
 		if ((mActionBar != null) && !IS_HONEYCOMB) {
+			ensureSupportActionBarAttached();
 			FrameLayout contentView = (FrameLayout)findViewById(R.id.actionbarsherlock_content);
 			contentView.removeAllViews();
 			contentView.addView(view, params);
@@ -222,30 +249,13 @@ public class FragmentActivity extends Activity {
 	@Override
 	public void setContentView(View view) {
 		if ((mActionBar != null) && !IS_HONEYCOMB) {
+			ensureSupportActionBarAttached();
 			FrameLayout contentView = (FrameLayout)findViewById(R.id.actionbarsherlock_content);
 			contentView.removeAllViews();
 			contentView.addView(view);
 		} else {
 			super.setContentView(view);
 		}
-	}
-	
-	/**
-	 * Hook into the superclass's setContentView implementation.
-	 * 
-	 * @param view Content view.
-	 */
-	final void setSuperContentView(View view) {
-		super.setContentView(view);
-	}
-
-	/**
-	 * Hook into the superclass's setContentView implementation.
-	 * 
-	 * @param layoutResId Resource ID of layout.
-	 */
-	final void setSuperContentView(int layoutResId) {
-		super.setContentView(layoutResId);
 	}
 	
 	/**

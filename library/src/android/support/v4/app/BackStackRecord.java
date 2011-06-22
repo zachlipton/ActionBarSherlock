@@ -533,6 +533,12 @@ final class BackStackRecord extends FragmentTransaction implements
             switch (op.cmd) {
                 case OP_ADD: {
                     Fragment f = op.fragment;
+                    
+                    //If attaching to the root view make sure activity is attached
+                    if (!IS_HONEYCOMB && (f.mContainerId == android.R.id.content)) {
+                    	mManager.mActivity.ensureSupportActionBarAttached();
+                    }
+                    
                     f.mNextAnim = op.enterAnim;
                     mManager.addFragment(f, false);
                 } break;

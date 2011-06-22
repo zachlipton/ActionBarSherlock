@@ -118,7 +118,7 @@ public final class ActionBarSupportImpl extends ActionBar {
 		}
 	}
 	
-	private void init(View view) {
+	public void init(View view) {
 		mContext = view.getContext();
 		mActionView = (ActionBarView)view.findViewById(R.id.action_bar);
 		mUpperContextView = (ActionBarContextView)view.findViewById(R.id.action_context_bar);
