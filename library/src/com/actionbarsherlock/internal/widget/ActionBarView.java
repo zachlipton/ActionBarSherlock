@@ -28,7 +28,7 @@ import com.actionbarsherlock.internal.view.menu.ActionMenuItem;
 import com.actionbarsherlock.internal.view.menu.ActionMenuView;
 import com.actionbarsherlock.internal.view.menu.MenuBuilder;
 
-public final class ActionBarWatson extends ViewGroup {
+public final class ActionBarView extends ViewGroup {
 	private static final int DEFAULT_DISPLAY_OPTIONS = ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE;
 	private static final int ALL_DISPLAY_OPTIONS = ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_CUSTOM
 			| ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO;
@@ -73,7 +73,7 @@ public final class ActionBarWatson extends ViewGroup {
 	
 	
 
-	public ActionBarWatson(final Context context, AttributeSet attrs) {
+	public ActionBarView(final Context context, AttributeSet attrs) {
 		super(context, attrs);
 		
 		mDisplayOptions = DEFAULT_DISPLAY_OPTIONS;
@@ -496,7 +496,7 @@ public final class ActionBarWatson extends ViewGroup {
 		
 		@Override
 		public void onClick(View view) {
-			((ActionBarWatson.TabView)view).getTab().select();
+			((ActionBarView.TabView)view).getTab().select();
 			final int count = mTabLayout.getChildCount();
 			for (int i = 0; i < count; i++) {
 				View child = mTabLayout.getChildAt(i);

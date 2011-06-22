@@ -37,7 +37,7 @@ import com.actionbarsherlock.R;
 import com.actionbarsherlock.internal.view.menu.MenuBuilder;
 import com.actionbarsherlock.internal.widget.ActionBarContainer;
 import com.actionbarsherlock.internal.widget.ActionBarContextView;
-import com.actionbarsherlock.internal.widget.ActionBarWatson;
+import com.actionbarsherlock.internal.widget.ActionBarView;
 
 public final class ActionBarSupportImpl extends ActionBar {
 	/**
@@ -54,7 +54,7 @@ public final class ActionBarSupportImpl extends ActionBar {
 	private static final DecelerateInterpolator sFadeOutInterpolator = new DecelerateInterpolator();
 	
 	private ActionMode mActionMode;
-	private ActionBarWatson mActionView;
+	private ActionBarView mActionView;
 	private ActionBarContainer mContainerView;
 	private FrameLayout mContentView;
 	private Context mContext;
@@ -120,10 +120,10 @@ public final class ActionBarSupportImpl extends ActionBar {
 	
 	private void init(View view) {
 		mContext = view.getContext();
-		mActionView = (ActionBarWatson)view.findViewById(0/*TODO*/);
-		mUpperContextView = (ActionBarContextView)view.findViewById(0/*TODO*/);
-		mLowerContextView = (LinearLayout)view.findViewById(0/*TODO*/);
-		mContainerView = (ActionBarContainer)view.findViewById(0/*TODO*/);
+		mActionView = (ActionBarView)view.findViewById(R.id.action_bar);
+		mUpperContextView = (ActionBarContextView)view.findViewById(R.id.action_context_bar);
+		mLowerContextView = (LinearLayout)view.findViewById(R.id.lower_action_context_bar);
+		mContainerView = (ActionBarContainer)view.findViewById(R.id.action_bar_container);
 		if ((mActionView == null) || (mUpperContextView == null) || (mContainerView == null)) {
 			throw new IllegalStateException(/*TODO*/);
 		}
