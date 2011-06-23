@@ -428,14 +428,50 @@ public final class ActionBarView extends ViewGroup {
 			addView(mMenuView);
 		}
 	}
-	
+
 	public void setNavigationMode(int navigationMode) {
 		if (mNavigationMode == navigationMode) {
 			return;
 		}
+
+		//TODO account for size and add/remove title appropriately
 		
 		switch (mNavigationMode) {
-			
+			case ActionBar.NAVIGATION_MODE_LIST:
+				if (mSpinner != null) {
+					removeView(mListNavLayout);
+				}
+				break;
+				
+			case ActionBar.NAVIGATION_MODE_TABS:
+				if (mTabLayout != null) {
+					removeView(mTabScrollView);
+				}
+				break;
+		}
+		switch (navigationMode) {
+			case ActionBar.NAVIGATION_MODE_LIST:
+				if (mSpinner == null) {
+					mSpinner = new Spinner(getContext(), null, R.attr.actionDropDownStyle);
+					mListNavLayout = new LinearLayout(getContext(), null, R.attr.actionBarTabBarStyle);
+					LinearLayout.LayoutParams spinnerLayoutParams = new LinearLayout.LayoutParams(
+						LinearLayout.LayoutParams.FILL_PARENT,
+						LinearLayout.LayoutParams.FILL_PARENT
+					);
+					spinnerLayoutParams.gravity = Gravity.CENTER;
+					mListNavLayout.addView(mSpinner, spinnerLayoutParams);
+				}
+				if (mSpinner.getAdapter() != mSpinnerAdapter) {
+					mSpinner.setAdapter(mSpinnerAdapter);
+				}
+				mSpinner.setOnItemSelectedListener(mNavItemSelectedListener);
+				addView(mListNavLayout);
+				break;
+				
+			case ActionBar.NAVIGATION_MODE_TABS:
+				ensureTabsExist();
+				addView(mTabScrollView);
+				break;
 		}
 		
 		mNavigationMode = navigationMode;

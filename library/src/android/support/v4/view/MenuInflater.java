@@ -397,7 +397,7 @@ public final class MenuInflater extends android.view.MenuInflater {
 		
 		public void addItem() {
 			itemAdded = true;
-			setItem(menu.add(groupId, itemId, itemCategoryOrder, itemTitleId));
+			setItem((MenuItemImpl)menu.add(groupId, itemId, itemCategoryOrder, itemTitleId));
 		}
 		
 		public SubMenuBuilder addSubMenuItem() {
