@@ -37,6 +37,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 
 public class MenuBuilder implements Menu {
 	public static final int NUM_TYPES = 2;
@@ -496,6 +497,51 @@ public class MenuBuilder implements Menu {
 		return this.mItems.size();
 	}
 	
+	
+	class OverflowMenuAdapter extends MenuAdapter {
+		public OverflowMenuAdapter(int menuType) {
+			super(menuType);
+		}
+		
+		@Override
+		public int getCount() {
+			return getNonActionItems(true).size();
+		}
+		
+		@Override
+		public MenuItemImpl getItem(int index) {
+			return getNonActionItems(true).get(index);
+		}
+	}
+	
+	public class MenuAdapter extends BaseAdapter {
+		private int mMenuType;
+		
+		public MenuAdapter(int menuType) {
+			mMenuType = menuType;
+		}
+		
+		@Override
+		public int getCount() {
+			return getVisibleItems().size();
+		}
+		
+		@Override
+		public MenuItemImpl getItem(int index) {
+			return getVisibleItems().get(index);
+		}
+		
+		@Override
+		public long getItemId(int itemId) {
+			return itemId;
+		}
+		
+		public View getView(int paramInt, View paramView, ViewGroup paramViewGroup) {
+			if (paramView == null) {
+				//TODO
+			}
+		}
+	}
 
 	public interface ItemInvoker {
 		boolean invokeItem(MenuItemImpl paramMenuItemImpl);
