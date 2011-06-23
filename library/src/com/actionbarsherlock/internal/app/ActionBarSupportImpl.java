@@ -38,6 +38,7 @@ import android.widget.SpinnerAdapter;
 import com.actionbarsherlock.R;
 import com.actionbarsherlock.internal.view.animation.AnimationGroup;
 import com.actionbarsherlock.internal.view.menu.MenuBuilder;
+import com.actionbarsherlock.internal.view.menu.SubMenuBuilder;
 import com.actionbarsherlock.internal.widget.ActionBarContainer;
 import com.actionbarsherlock.internal.widget.ActionBarContextView;
 import com.actionbarsherlock.internal.widget.ActionBarView;
@@ -52,8 +53,8 @@ public final class ActionBarSupportImpl extends ActionBar {
 		return new ActionBarSupportImpl(activity);
 	}
 	
-	private static final int CONTEXT_DISPLAY_NORMAL = 0;
-	private static final int CONTEXT_DISPLAY_SPLIT = 1;
+	//XXX UNUSED? private static final int CONTEXT_DISPLAY_NORMAL = 0;
+	//XXX UNUSED? private static final int CONTEXT_DISPLAY_SPLIT = 1;
 	private static final DecelerateInterpolator sFadeOutInterpolator = new DecelerateInterpolator();
 	
 	private ActionMode mActionMode;
@@ -62,7 +63,7 @@ public final class ActionBarSupportImpl extends ActionBar {
 	private ActionBarContainer mContainerView;
 	private View mContentView;
 	private Context mContext;
-	private int mContextDisplayMode;
+	//XXX UNUSED? private int mContextDisplayMode;
 	private Animation mCurrentAnim;
 	final Animation.AnimationListener mHideListener;
 	private LinearLayout mLowerContextView;
@@ -212,12 +213,14 @@ public final class ActionBarSupportImpl extends ActionBar {
 		}
 	}
 	
+	/* XXX UNUSED?
 	private void hideAllExcept(int position) {
 		final int count = mContainerView.getChildCount();
 		for (int i = 0; i < count; i++) {
 			mContainerView.getChildAt(i).setVisibility((i == position) ? View.VISIBLE : View.GONE);
 		}
 	}
+	*/
 	
 	public void init(View view) {
 		mContext = view.getContext();
@@ -230,7 +233,7 @@ public final class ActionBarSupportImpl extends ActionBar {
 		}
 		
 		mActionView.setContextView(mUpperContextView);
-		mContextDisplayMode = (mLowerContextView == null) ? CONTEXT_DISPLAY_NORMAL : CONTEXT_DISPLAY_SPLIT;
+		//XXX UNUSED mContextDisplayMode = (mLowerContextView == null) ? CONTEXT_DISPLAY_NORMAL : CONTEXT_DISPLAY_SPLIT;
 		
 		if (!getActivity().getWindow__hasFeature(Window.FEATURE_ACTION_BAR_OVERLAY)) {
 			mContentView = (FrameLayout)view.findViewById(R.id.content);
@@ -738,13 +741,42 @@ public final class ActionBarSupportImpl extends ActionBar {
 		}
 
 		@Override
+		public void invalidate() {
+			mCallback.onPrepareActionMode(this, mMenu);
+		}
+
+		@Override
+		public void onCloseMenu(MenuBuilder paramMenuBuilder, boolean paramBoolean) {
+			//No op
+		}
+
+		@Override
+		public void onCloseSubMenu(SubMenuBuilder paramSubMenuBuilder) {
+			//No op
+		}
+
+		@Override
 		public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
 			return (mCallback != null) ? mCallback.onActionItemClicked(this, item) : false;
 		}
 
 		@Override
-		public void invalidate() {
-			mCallback.onPrepareActionMode(this, mMenu);
+		public void onMenuModeChange(MenuBuilder paramMenuBuilder) {
+			if (mCallback != null) {
+				invalidate();
+				//XXX: mUpperContextView.openOverflowMenu();
+			}
+		}
+
+		@Override
+		public boolean onSubMenuSelected(SubMenuBuilder paramSubMenuBuilder) {
+			if (mCallback != null) {
+				if (paramSubMenuBuilder.hasVisibleItems()) {
+					//XXX: (new MenuPopupHelper(mContext, paramSubMenuBuilder)).show();
+				}
+				return true;
+			}
+			return false;
 		}
 
 		@Override

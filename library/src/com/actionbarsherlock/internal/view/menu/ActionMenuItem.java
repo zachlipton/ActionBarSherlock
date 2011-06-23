@@ -16,7 +16,7 @@ public class ActionMenuItem implements MenuItem {
 	private static final int HIDDEN = MenuItemImpl.HIDDEN;
 	private static final int NO_ICON = 0;
 	
-	private final int mCategoryOrder;
+	//XXX UNUSED: private final int mCategoryOrder;
 	private MenuItem.OnMenuItemClickListener mClickListener;
 	private Context mContext;
 	private int mFlags = ENABLED;
@@ -35,7 +35,7 @@ public class ActionMenuItem implements MenuItem {
 		mContext = context;
 		mId = id;
 		mGroup = group;
-		mCategoryOrder = categoryOrder;
+		//XXX UNUSED mCategoryOrder = categoryOrder;
 		mOrdering = ordering;
 		mTitle = title;
 	}

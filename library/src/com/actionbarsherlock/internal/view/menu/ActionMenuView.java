@@ -10,7 +10,6 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -55,6 +54,7 @@ public class ActionMenuView extends LinearLayout implements MenuView, MenuBuilde
 		setBaselineAligned(false);
 	}
 	
+	/* XXX UNUSED?
 	private boolean addItemView(boolean something, ActionMenuItemView itemView) {
 		itemView.setItemInvoker(this);
 		final boolean hasText = itemView.hasText();
@@ -64,6 +64,7 @@ public class ActionMenuView extends LinearLayout implements MenuView, MenuBuilde
 		addView(itemView);
 		return hasText;
 	}
+	*/
 	
 	private int getMaxActionButtons() {
 		return getResources().getInteger(R.integer.max_action_buttons);
