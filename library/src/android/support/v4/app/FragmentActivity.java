@@ -26,9 +26,9 @@ import com.actionbarsherlock.internal.app.ActionBarNativeImpl;
 import com.actionbarsherlock.internal.app.ActionBarSupportImpl;
 import com.actionbarsherlock.internal.view.menu.MenuBuilder;
 import com.actionbarsherlock.internal.view.menu.MenuInflaterWrapper;
-import com.actionbarsherlock.internal.view.menu.MenuItemImpl;
 import com.actionbarsherlock.internal.view.menu.MenuItemWrapper;
 import com.actionbarsherlock.internal.view.menu.MenuWrapper;
+import com.actionbarsherlock.internal.view.menu.SubMenuBuilder;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -104,6 +104,30 @@ public class FragmentActivity extends Activity {
 		@Override
 		public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
 			return FragmentActivity.this.onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, item);
+		}
+
+		@Override
+		public void onCloseMenu(MenuBuilder paramMenuBuilder, boolean paramBoolean) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onCloseSubMenu(SubMenuBuilder paramSubMenuBuilder) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onMenuModeChange(MenuBuilder paramMenuBuilder) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public boolean onSubMenuSelected(SubMenuBuilder paramSubMenuBuilder) {
+			// TODO Auto-generated method stub
+			return false;
 		}
 	};
 	
@@ -668,11 +692,12 @@ public class FragmentActivity extends Activity {
 					if (DEBUG) Log.d(TAG, "onPrepareOptionsMenu(android.view.Menu): Adding any action items that are not displayed on the action bar.");
 					//Only add items that have not already been added to our custom
 					//action bar implementation
-					for (MenuItemImpl item : mActionBarMenu.getItems()) {
-						if (!item.isShownOnActionBar()) {
-							item.addTo(menu);
-						}
-					}
+					//for (MenuItemImpl item : mActionBarMenu.getItems()) {
+					//	if (!item.isShownOnActionBar()) {
+					//		item.addTo(menu);
+					//	}
+					//}
+					//TODO use getOverflowMenuAdapter(false)
 				}
 			}
 			
@@ -973,16 +998,6 @@ public class FragmentActivity extends Activity {
 		
 		//Return to the caller
 		return actionMode;
-	}
-	
-	/**
-	 * Get a special instance of {@link MenuItemImpl} which denotes the home
-	 * item and should be invoked when the custom home button is clicked.
-	 *  
-	 * @return Menu item instance.
-	 */
-	final MenuItemImpl getHomeMenuItem() {
-		return mActionBarMenu.addDetached(android.R.id.home);
 	}
 
 	// ------------------------------------------------------------------------

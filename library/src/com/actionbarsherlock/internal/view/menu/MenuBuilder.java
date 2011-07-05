@@ -540,6 +540,8 @@ public class MenuBuilder implements Menu {
 			if (paramView == null) {
 				//TODO
 			}
+			
+			return paramView;
 		}
 	}
 

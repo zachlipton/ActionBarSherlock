@@ -6,7 +6,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.location.GpsStatus.NmeaListener;
 import android.support.v4.app.ActionBar;
 import android.support.v4.view.Menu;
 import android.text.TextUtils;
