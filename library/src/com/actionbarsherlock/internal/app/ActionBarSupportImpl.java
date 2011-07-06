@@ -160,7 +160,7 @@ public final class ActionBarSupportImpl extends ActionBar {
 			}
 		};
 		
-		mContentView = (FrameLayout)activity.findViewById(R.id.actionbarsherlock_content);
+		mContentView = (FrameLayout)activity.findViewById(R.id.content);
 	}
 	
 	

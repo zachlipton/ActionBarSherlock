@@ -31,6 +31,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.view.Menu;
 import android.support.v4.view.MenuItem;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
@@ -73,7 +74,7 @@ public class MenuBuilder implements Menu {
 	private ArrayList<MenuItemImpl> mNonActionItems;
 	private boolean mReserveActionOverflow;
 	private boolean mPreventDispatchingItemsChanged = false;
-	private final Resources mResources;
+	//private final Resources mResources;
 	private ArrayList<MenuItemImpl> mVisibleItems;
 	
 	
@@ -85,8 +86,10 @@ public class MenuBuilder implements Menu {
 	public MenuBuilder(Context context) {
 		mMenuTypes = new MenuType[NUM_TYPES];
 		
+		Log.e("XXXXXX", "Context: " + context);
+		
 		mContext = context;
-		mResources = context.getResources();
+		//mResources = context.getResources();
 		
 		mItems = new ArrayList<MenuItemImpl>();
 		mActionItems = new ArrayList<MenuItemImpl>();
@@ -154,12 +157,12 @@ public class MenuBuilder implements Menu {
 
 	@Override
 	public MenuItem add(int titleResourceId) {
-		return addInternal(0, 0, 0, mResources.getString(titleResourceId));
+		return addInternal(0, 0, 0, mContext.getResources().getString(titleResourceId));
 	}
 
 	@Override
 	public MenuItem add(int groupId, int itemId, int order, int titleResourceId) {
-		return addInternal(itemId, groupId, order, mResources.getString(titleResourceId));
+		return addInternal(itemId, groupId, order, mContext.getResources().getString(titleResourceId));
 	}
 
 	@Override
@@ -203,12 +206,12 @@ public class MenuBuilder implements Menu {
 
 	@Override
 	public SubMenuBuilder addSubMenu(int titleResourceId) {
-		return addSubMenu(0, 0, 0, mResources.getString(titleResourceId));
+		return addSubMenu(0, 0, 0, mContext.getResources().getString(titleResourceId));
 	}
 
 	@Override
 	public SubMenuBuilder addSubMenu(int groupId, int itemId, int order, int titleResourceId) {
-		return addSubMenu(groupId, itemId, order, mResources.getString(titleResourceId));
+		return addSubMenu(groupId, itemId, order, mContext.getResources().getString(titleResourceId));
 	}
 
 	@Override
@@ -330,7 +333,7 @@ public class MenuBuilder implements Menu {
 	}
 	
 	Resources getResources() {
-		return mResources;
+		return mContext.getResources();
 	}
 	
 	public MenuBuilder getRootMenu() {

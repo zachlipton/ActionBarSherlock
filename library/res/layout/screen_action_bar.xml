@@ -26,7 +26,7 @@ This is an optimized layout for a screen with the Action Bar enabled.
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		style="?attr/actionBarStyle">
-		<com.actionbarsherlock.internal.widget.ActionBarView
+		<!--com.actionbarsherlock.internal.widget.ActionBarView
 			android:id="@+id/action_bar"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
@@ -36,7 +36,7 @@ This is an optimized layout for a screen with the Action Bar enabled.
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:visibility="gone"
-			style="?attr/actionModeStyle" />
+			style="?attr/actionModeStyle" /-->
 	</com.actionbarsherlock.internal.widget.ActionBarContainer>
 	<FrameLayout android:id="@+id/content"
 		android:layout_width="fill_parent"

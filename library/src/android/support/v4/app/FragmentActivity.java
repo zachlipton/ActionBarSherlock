@@ -98,7 +98,7 @@ public class FragmentActivity extends Activity {
 	};
 	final FragmentManagerImpl mFragments = new FragmentManagerImpl();
 	
-	final ActionBar mActionBar;
+	ActionBar mActionBar;
 	final MenuBuilder mActionBarMenu;
 	final MenuBuilder.Callback mMenuCallback = new MenuBuilder.Callback() {
 		@Override
@@ -131,7 +131,7 @@ public class FragmentActivity extends Activity {
 		}
 	};
 	
-	boolean mAttached;
+	boolean mAttached = false;
 	boolean mResumed;
 	boolean mStopped;
 	boolean mReallyStopped;
@@ -166,14 +166,12 @@ public class FragmentActivity extends Activity {
 	
 	public FragmentActivity() {
 		super();
-		mAttached = false;
 		
 		//Load the appropriate action bar handler and menu
 		if (IS_HONEYCOMB) {
 			mActionBar = ActionBarNativeImpl.createFor(this);
 			mActionBarMenu = null; //Everything should be done natively
 		} else {
-			mActionBar = ActionBarSupportImpl.createFor(this);
 			mActionBarMenu = new MenuBuilder(this);
 			mActionBarMenu.setCallback(mMenuCallback);
 		}
@@ -187,6 +185,7 @@ public class FragmentActivity extends Activity {
 			} else {
 				super.setContentView(R.layout.screen_action_bar);
 			}
+			mActionBar = ActionBarSupportImpl.createFor(this);
 			mAttached = true;
 			
 			((ActionBarSupportImpl)mActionBar).init(getWindow().getDecorView());
@@ -254,7 +253,7 @@ public class FragmentActivity extends Activity {
 	public void setContentView(int layoutResId) {
 		if ((mActionBar != null) && !IS_HONEYCOMB) {
 			ensureSupportActionBarAttached();
-			FrameLayout contentView = (FrameLayout)findViewById(R.id.actionbarsherlock_content);
+			FrameLayout contentView = (FrameLayout)findViewById(R.id.content);
 			contentView.removeAllViews();
 			getLayoutInflater().inflate(layoutResId, contentView, true);
 		} else {
@@ -266,7 +265,7 @@ public class FragmentActivity extends Activity {
 	public void setContentView(View view, LayoutParams params) {
 		if ((mActionBar != null) && !IS_HONEYCOMB) {
 			ensureSupportActionBarAttached();
-			FrameLayout contentView = (FrameLayout)findViewById(R.id.actionbarsherlock_content);
+			FrameLayout contentView = (FrameLayout)findViewById(R.id.content);
 			contentView.removeAllViews();
 			contentView.addView(view, params);
 		} else {
@@ -278,7 +277,7 @@ public class FragmentActivity extends Activity {
 	public void setContentView(View view) {
 		if ((mActionBar != null) && !IS_HONEYCOMB) {
 			ensureSupportActionBarAttached();
-			FrameLayout contentView = (FrameLayout)findViewById(R.id.actionbarsherlock_content);
+			FrameLayout contentView = (FrameLayout)findViewById(R.id.content);
 			contentView.removeAllViews();
 			contentView.addView(view);
 		} else {
@@ -342,12 +341,6 @@ public class FragmentActivity extends Activity {
 		}
 		
 		super.onCreate(savedInstanceState);
-		if (!IS_HONEYCOMB) {
-			//No title bar, we're replacing that with an action bar
-			requestWindowFeature(Window.FEATURE_NO_TITLE);
-			//Load up the wrapper layout
-			super.setContentView(R.layout.actionbarsherlock_wrapper);
-		}
 		
 		NonConfigurationInstances nc = (NonConfigurationInstances)
 				getLastNonConfigurationInstance();
