@@ -25,10 +25,13 @@ import com.actionbarsherlock.R;
 import com.actionbarsherlock.internal.app.ActionBarWrapper;
 import com.actionbarsherlock.internal.app.ActionBarImpl;
 import com.actionbarsherlock.internal.view.menu.MenuBuilder;
+import com.actionbarsherlock.internal.view.menu.MenuBuilder.MenuAdapter;
 import com.actionbarsherlock.internal.view.menu.MenuInflaterWrapper;
-import com.actionbarsherlock.internal.view.menu.MenuItemImpl;
+import com.actionbarsherlock.internal.view.menu.MenuItemImpl.NativeItemView;
 import com.actionbarsherlock.internal.view.menu.MenuItemWrapper;
+import com.actionbarsherlock.internal.view.menu.MenuView.ItemView;
 import com.actionbarsherlock.internal.view.menu.MenuWrapper;
+import com.actionbarsherlock.internal.view.menu.SubMenuBuilder;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -147,6 +150,27 @@ public class FragmentActivity extends Activity implements SupportActivity {
         public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
             return FragmentActivity.this.onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, item);
         }
+
+		@Override
+		public void onCloseMenu(MenuBuilder paramMenuBuilder, boolean paramBoolean) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void onCloseSubMenu(SubMenuBuilder paramSubMenuBuilder) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void onMenuModeChange(MenuBuilder paramMenuBuilder) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public boolean onSubMenuSelected(SubMenuBuilder paramSubMenuBuilder) {
+			// TODO Auto-generated method stub
+			return false;
+		}
     };
 
     boolean mCreated;
@@ -684,7 +708,7 @@ public class FragmentActivity extends Activity implements SupportActivity {
 
                 if (!IS_HONEYCOMB) {
                     if (DEBUG) Log.d(TAG, "onPanelClosed(int, android.view.Menu): Dispatch menu visibility false to custom action bar.");
-                    ((ActionBarImpl)mActionBar).onMenuVisibilityChanged(false);
+                    ((ActionBarImpl)mActionBar).dispatchVisibilityChanged(false);
                 }
                 break;
         }
@@ -764,17 +788,18 @@ public class FragmentActivity extends Activity implements SupportActivity {
                     if (DEBUG) Log.d(TAG, "onPrepareOptionsMenu(android.view.Menu): Adding any action items that are not displayed on the action bar.");
                     //Only add items that have not already been added to our custom
                     //action bar implementation
-                    for (MenuItemImpl item : mSupportMenu.getItems()) {
-                        if (!item.isShownOnActionBar()) {
-                            item.addTo(menu);
-                        }
+                    MenuAdapter overflowMenu = mSupportMenu.getOverflowMenuAdapter(MenuBuilder.TYPE_NATIVE);
+                    final int count = overflowMenu.getCount();
+                    for (int i = 0; i < count; i++) {
+                    	ItemView itemView = overflowMenu.getItem(i).getItemView(MenuBuilder.TYPE_NATIVE, null); 
+                    	((NativeItemView)itemView).attach(menu);
                     }
                 }
             }
 
             if (mOptionsMenuCreateResult && prepareResult && menu.hasVisibleItems()) {
                 if (DEBUG) Log.d(TAG, "onPrepareOptionsMenu(android.view.Menu): Dispatch menu visibility true to custom action bar.");
-                ((ActionBarImpl)mActionBar).onMenuVisibilityChanged(true);
+                ((ActionBarImpl)mActionBar).dispatchVisibilityChanged(true);
                 result = true;
             }
         } else {

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -14,8 +13,8 @@ import com.actionbarsherlock.R;
 public class ActionMenuItemView extends RelativeLayout implements MenuView.ItemView, View.OnClickListener {
     private ImageView mImageButton;
     private TextView mTextButton;
-    private FrameLayout mCustomView;
-    private MenuItemImpl mMenuItem;
+    private MenuBuilder.ItemInvoker mItemInvoker;
+    private MenuItemImpl mItemData;
     private WeakReference<ImageView> mDivider;
 
     public ActionMenuItemView(Context context) {
@@ -29,6 +28,10 @@ public class ActionMenuItemView extends RelativeLayout implements MenuView.ItemV
         setOnClickListener(this);
     }
 
+    public boolean hasText() {
+        return mTextButton.getVisibility() != View.GONE;
+    }
+
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
@@ -37,15 +40,12 @@ public class ActionMenuItemView extends RelativeLayout implements MenuView.ItemV
         mImageButton.setOnClickListener(this);
         mTextButton = (TextView) findViewById(R.id.abs__item_text);
         mTextButton.setOnClickListener(this);
-        mCustomView = (FrameLayout) findViewById(R.id.abs__item_custom);
-        mCustomView.setOnClickListener(this);
     }
 
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
         mImageButton.setEnabled(enabled);
         mTextButton.setEnabled(enabled);
-        mCustomView.setEnabled(enabled);
     }
 
     public void setDivider(ImageView divider) {
@@ -60,44 +60,33 @@ public class ActionMenuItemView extends RelativeLayout implements MenuView.ItemV
         setVisibility(visibility);
     }
 
-    public void reloadDisplay() {
-        final boolean hasCustomView = mCustomView.getChildCount() > 0;
-        final boolean hasText = mMenuItem.showsActionItemText() && !"".equals(mTextButton.getText());
-
-        if (hasCustomView) {
-            mCustomView.setVisibility(View.VISIBLE);
-            mImageButton.setVisibility(View.GONE);
-            mTextButton.setVisibility(View.GONE);
-        } else {
-            mCustomView.setVisibility(View.GONE);
-            mImageButton.setVisibility(View.VISIBLE);
-            mTextButton.setVisibility(hasText ? View.VISIBLE : View.GONE);
-        }
-    }
-
     public void setIcon(Drawable icon) {
         mImageButton.setImageDrawable(icon);
     }
 
+	public void setItemInvoker(MenuBuilder.ItemInvoker itemInvoker) {
+		mItemInvoker = itemInvoker;
+	}
+
     public void setTitle(CharSequence title) {
         mTextButton.setText(title);
-        reloadDisplay();
     }
 
     @Override
     public void initialize(MenuItemImpl itemData, int menuType) {
-        mMenuItem = itemData;
+        mItemData = itemData;
         setId(itemData.getItemId());
         setIcon(itemData.getIcon());
         setTitle(itemData.getTitle());
-        setEnabled(itemData.isEnabled());
-        setActionView(itemData.getActionView());
-        setVisible(itemData.isVisible());
+		if (itemData.isVisible()) {
+			setVisibility(View.VISIBLE);
+			setEnabled(itemData.isEnabled());
+		}
     }
 
     @Override
     public MenuItemImpl getItemData() {
-        return mMenuItem;
+        return mItemData;
     }
 
     @Override
@@ -116,15 +105,6 @@ public class ActionMenuItemView extends RelativeLayout implements MenuView.ItemV
     }
 
     @Override
-    public void setActionView(View actionView) {
-        mCustomView.removeAllViews();
-        if (actionView != null) {
-            mCustomView.addView(actionView);
-        }
-        reloadDisplay();
-    }
-
-    @Override
     public boolean prefersCondensedTitle() {
         return true;
     }
@@ -134,10 +114,10 @@ public class ActionMenuItemView extends RelativeLayout implements MenuView.ItemV
         return true;
     }
 
-    @Override
-    public void onClick(View v) {
-        if (mMenuItem != null) {
-            mMenuItem.invoke();
-        }
-    }
+	@Override
+	public void onClick(View v) {
+		if (mItemInvoker != null) {
+			mItemInvoker.invokeItem(mItemData);
+		}
+	}
 }

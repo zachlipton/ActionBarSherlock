@@ -42,11 +42,4 @@
         android:textColor="?attr/actionMenuTextColor"
         style="?attr/actionMenuTextAppearance"
         />
-    <FrameLayout
-        android:id="@+id/abs__item_custom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:visibility="gone"
-        />
 </com.actionbarsherlock.internal.view.menu.ActionMenuItemView>

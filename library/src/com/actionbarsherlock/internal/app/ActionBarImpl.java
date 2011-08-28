@@ -27,14 +27,11 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.app.ActionBar;
 import android.support.v4.app.SupportActivity;
 import android.support.v4.view.ActionMode;
-import android.support.v4.view.MenuItem;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.SpinnerAdapter;
 import com.actionbarsherlock.R;
-import com.actionbarsherlock.internal.view.menu.ActionMenuItemView;
 import com.actionbarsherlock.internal.view.menu.MenuBuilder;
-import com.actionbarsherlock.internal.view.menu.MenuItemImpl;
 import com.actionbarsherlock.internal.widget.ActionBarContainer;
 import com.actionbarsherlock.internal.widget.ActionBarView;
 
@@ -78,7 +75,6 @@ public final class ActionBarImpl extends ActionBar {
             actInfo = pm.getActivityInfo(mActivity.getComponentName(), PackageManager.GET_ACTIVITIES);
         } catch (NameNotFoundException e) {}
 
-
         if (mActionView.getTitle() == null) {
             if ((actInfo != null) && (actInfo.labelRes != 0)) {
                 //Load label string resource from the activity entry
@@ -91,72 +87,12 @@ public final class ActionBarImpl extends ActionBar {
     }
 
     public void onMenuInflated(MenuBuilder menu) {
-        if (mActionView == null) {
-            return;
-        }
-
-        final int maxItems = mActivity.getResources().getInteger(R.integer.abs__max_action_buttons);
-
-        //Iterate and grab as many actions as we can up to maxItems honoring
-        //their showAsAction values
-        int ifItems = 0;
-        final int count = menu.size();
-        boolean showsActionItemText = menu.getShowsActionItemText();
-        List<MenuItemImpl> keep = new ArrayList<MenuItemImpl>();
-        for (int i = 0; i < count; i++) {
-            MenuItemImpl item = (MenuItemImpl)menu.getItem(i);
-
-            //Items without an icon or custom view are forced into the overflow menu
-            if (!showsActionItemText && (item.getIcon() == null) && (item.getActionView() == null)) {
-                continue;
-            }
-            if (showsActionItemText && ((item.getTitle() == null) || "".equals(item.getTitle()))) {
-                continue;
-            }
-
-            if ((item.getShowAsAction() & MenuItem.SHOW_AS_ACTION_ALWAYS) != 0) {
-                //Show always therefore add to keep list
-                keep.add(item);
-
-                if ((keep.size() > maxItems) && (ifItems > 0)) {
-                    //If we have exceeded the max and there are "ifRoom" items
-                    //then iterate backwards to remove one and add it to the
-                    //head of the classic items list.
-                    for (int j = keep.size() - 1; j >= 0; j--) {
-                        if ((keep.get(j).getShowAsAction() & MenuItem.SHOW_AS_ACTION_IF_ROOM) != 0) {
-                            keep.remove(j);
-                            ifItems -= 1;
-                            break;
-                        }
-                    }
-                }
-            } else if (((item.getShowAsAction() & MenuItem.SHOW_AS_ACTION_IF_ROOM) != 0)
-                    && (keep.size() < maxItems)) {
-                //"ifRoom" items are added if we have not exceeded the max.
-                keep.add(item);
-                ifItems += 1;
-            }
-        }
-
-        //Mark items that will be shown on the action bar as such so they do
-        //not show up on the activity options menu
-        mActionView.removeAllItems();
-        for (MenuItemImpl item : keep) {
-            item.setIsShownOnActionBar(true);
-
-            //Get a new item for this menu item
-            ActionMenuItemView actionItem = mActionView.newItem();
-            actionItem.initialize(item, MenuBuilder.TYPE_ACTION_BAR);
-
-            //Associate the itemview with the item so changes will be reflected
-            item.setItemView(MenuBuilder.TYPE_ACTION_BAR, actionItem);
-
-            //Add to the action bar for display
-            mActionView.addItem(actionItem);
+        if (mActionView != null) {
+            mActionView.setMenu(menu);
         }
     }
 
-    public void onMenuVisibilityChanged(boolean isVisible) {
+    public void dispatchVisibilityChanged(boolean isVisible) {
         //Marshal to all listeners
         for (OnMenuVisibilityListener listener : mMenuListeners) {
             listener.onMenuVisibilityChanged(isVisible);

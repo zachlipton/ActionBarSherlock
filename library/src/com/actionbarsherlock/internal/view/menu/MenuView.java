@@ -17,7 +17,6 @@
 package com.actionbarsherlock.internal.view.menu;
 
 import android.graphics.drawable.Drawable;
-import android.view.View;
 
 /**
  * Minimal interface for a menu view.  {@link #initialize(MenuBuilder, int)} must be called for the
@@ -98,12 +97,6 @@ public interface MenuView {
         public void setChecked(boolean checked);
 
         /**
-         * Sets the visibility for the item view.
-         * @param visible Whether the item is visible
-         */
-        public void setVisible(boolean visible);
-
-        /**
          * Sets the shortcut for the item.
          * @param showShortcut Whether a shortcut should be shown(if false, the value of
          * shortcutKey should be ignored).
@@ -116,12 +109,6 @@ public interface MenuView {
          * @param icon The icon of this item. null to hide the icon.
          */
         public void setIcon(Drawable icon);
-
-        /**
-         * Set the action view of this item view.
-         * @param actionView Action view.
-         */
-        public void setActionView(View actionView);
 
         /**
          * Whether this item view prefers displaying the condensed title rather
