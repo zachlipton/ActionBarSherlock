@@ -12,8 +12,12 @@ Version 3.2.0 *(In Development)*
     Since supporting maps requires compiling against the Google APIs, this
     functionality is implemented in the form of a plugin which is to be used
     alongside the normal library. You can choose to add it as an additional
-    library project or by including it as a `.jar`. Maven users may simply include
-    the additional dependency (artifactId: `plugin-maps`).
+    library project or by including it as a `.jar`. Maven users may simply
+    include the additional dependency (artifactId: `plugin-maps`).
+ *  Fix: Fragments adjacent to the currently selected fragment in a `ViewPager`
+    no longer contribute to the activity menu.
+ *  `ActionBar.Tab` has been changed from an interface to an abstract class to
+    mirror its native counterpart.
 
 
 Version 3.1.3 *(2011-08-14)*

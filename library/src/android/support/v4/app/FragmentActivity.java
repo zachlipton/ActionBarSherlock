@@ -232,8 +232,8 @@ public class FragmentActivity extends Activity implements SupportActivity {
             return;
         }
         if (!mIsActionBarImplAttached) {
-            //Do not allow an action bar if we have a parent activity
-            if (getParent() != null) {
+            if (isChild()) {
+                //Do not allow an action bar if we have a parent activity
                 mWindowFlags &= ~WINDOW_FLAG_ACTION_BAR;
             }
             if ((mWindowFlags & WINDOW_FLAG_ACTION_BAR) == WINDOW_FLAG_ACTION_BAR) {
@@ -245,8 +245,8 @@ public class FragmentActivity extends Activity implements SupportActivity {
 
                 ((ActionBarImpl)mActionBar).init();
 
-                final boolean actionBarEnabled = ((mWindowFlags & WINDOW_FLAG_ACTION_BAR_ITEM_TEXT) == WINDOW_FLAG_ACTION_BAR_ITEM_TEXT);
-                mSupportMenu.setShowsActionItemText(actionBarEnabled);
+                final boolean textEnabled = ((mWindowFlags & WINDOW_FLAG_ACTION_BAR_ITEM_TEXT) == WINDOW_FLAG_ACTION_BAR_ITEM_TEXT);
+                mSupportMenu.setShowsActionItemText(textEnabled);
 
                 if ((mWindowFlags & WINDOW_FLAG_INDETERMINANTE_PROGRESS) == WINDOW_FLAG_INDETERMINANTE_PROGRESS) {
                     ((ActionBarImpl)mActionBar).setProgressBarIndeterminateVisibility(true);

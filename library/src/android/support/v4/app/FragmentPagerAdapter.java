@@ -16,6 +16,8 @@
 
 package android.support.v4.app;
 
+import java.lang.ref.WeakReference;
+
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.util.Log;
@@ -32,6 +34,7 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
 
     private final FragmentManager mFragmentManager;
     private FragmentTransaction mCurTransaction = null;
+    private WeakReference<Fragment> mLastFragment = null;
 
     public FragmentPagerAdapter(FragmentManager fm) {
         mFragmentManager = fm;
@@ -65,6 +68,7 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
                     makeFragmentName(container.getId(), position));
         }
 
+        fragment.mExposesMenu = false;
         return fragment;
     }
 
@@ -73,9 +77,21 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
         if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction();
         }
-        if (DEBUG) Log.v(TAG, "Detaching item #" + position + ": f=" + object
-                + " v=" + ((Fragment)object).getView());
-        mCurTransaction.detach((Fragment)object);
+        Fragment fragment = (Fragment)object;
+        fragment.mExposesMenu = true;
+        if (DEBUG) Log.v(TAG, "Detaching item #" + position + ": f=" + fragment
+                + " v=" + fragment.getView());
+        mCurTransaction.detach(fragment);
+    }
+
+    @Override
+    public void onItemSelected(int position, Object object) {
+        if ((mLastFragment != null) && (mLastFragment.get() != null)) {
+            mLastFragment.get().mExposesMenu = false;
+        }
+        Fragment fragment = (Fragment)object;
+        fragment.mExposesMenu = true;
+        mLastFragment = new WeakReference<Fragment>(fragment);
     }
 
     @Override
@@ -84,6 +100,7 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
             mCurTransaction.commit();
             mCurTransaction = null;
             mFragmentManager.executePendingTransactions();
+            ((FragmentManagerImpl)mFragmentManager).mActivity.invalidateOptionsMenu();
         }
     }
 
