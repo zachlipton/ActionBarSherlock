@@ -21,6 +21,7 @@ import android.os.Parcelable;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.FrameLayout;
 
 /**
@@ -29,6 +30,13 @@ import android.widget.FrameLayout;
  */
 public class NoSaveStateFrameLayout extends FrameLayout {
     static ViewGroup wrap(View child) {
+        // +jmw: don't wrap the child if it is already wrappped ////
+        ViewParent parent = child.getParent();
+        if(parent != null && parent instanceof NoSaveStateFrameLayout) {
+            return (NoSaveStateFrameLayout) parent;
+        }
+        ////////////////////////////////////////////////////////////
+        
         NoSaveStateFrameLayout wrapper = new NoSaveStateFrameLayout(child.getContext());
         ViewGroup.LayoutParams childParams = child.getLayoutParams();
         if (childParams != null) {
