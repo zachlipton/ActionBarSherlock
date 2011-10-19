@@ -1,6 +1,23 @@
 Change Log
 ===============================================================================
 
+Version 3.3.0 *(2011-10-11)*
+----------------------------
+
+ * Tabs are now displayed below the action bar on all medium-screen devices and
+   portrait large-screen devices.
+ * Fix: Dialog fragments no longer throw an `IllegalStateException` when being
+   used as a regular fragment (i.e., not as a popup). See
+   [StackOverflow](http://stackoverflow.com/questions/5637894/dialogfragments-with-devices-api-level-11/7560686#7560686)
+   for more information.
+ * Fix: Popping a fragment off of the back stack now properly assigns its parent
+   activity. 
+ * Fix: An activity result no longer causes a `NullPointerException` when the
+   target fragment no longer exists.
+ * Fix: Action item dividers are now properly initially hidden when their
+   associated action items are as well.
+
+
 Version 3.2.3 *(2011-09-16)*
 ----------------------------
 

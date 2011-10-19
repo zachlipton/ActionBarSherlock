@@ -63,8 +63,7 @@
 	.feature h1 a:link, .feature h1 a:visited, .feature h1 a:active { color: #fff; }
 	.feature h1 a:hover { border-bottom: none; }
 	#apps { margin-top: 60px; }
-
-	.app { margin-bottom: 2em; }
+	.app { margin-bottom: 2em; float: left; }
 	.app img { float: left; }
 	.app .info { margin-left: 90px; }
 	.app h4 { margin: 0; font-size: 1.25em; }
@@ -99,6 +98,15 @@
 	#faq-table td p:first-child { margin-top: 0; }
 	#faq-table td p:last-child { margin-bottom: 0; }
 
+	#changelog-content {
+		color: #444;
+		text-shadow: 1px 0px 3px #ddd;
+	}
+	#changelog-content h1 { color: #000; }
+	#changelog-content h2 { color: #222; }
+	#changelog-content a:link, #changelog-content a:visited, #changelog-content a:active, #changelog-content a:hover { color: #33d; text-shadow: 0px 0px 0px; font-weight: normal; }
+	#changelog-content a:hover { border-bottom-color: #33f; }
+
 
 /*
     ColorBox Core Style:
@@ -115,7 +123,7 @@
 .cboxPhoto{float:left; margin:auto; border:0; display:block;}
 .cboxIframe{width:100%; height:100%; display:block; border:0;}
 
-/* 
+/*
     User Style:
     Change the following styles to modify the appearance of ColorBox.  They are
     ordered & tabbed in a way that represents the nesting of the generated HTML.
@@ -215,7 +223,7 @@
 /* ! Provide higher res assets for iPhone 4   */
 /* ========================================== */
 
-@media only screen and (-webkit-min-device-pixel-ratio: 2) { 
+@media only screen and (-webkit-min-device-pixel-ratio: 2) {
 /*	.logo {
 		background: url(logo2x.jpg) no-repeat;
 		background-size: 212px 303px;
