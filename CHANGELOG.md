@@ -1,6 +1,70 @@
 Change Log
 ===============================================================================
 
+Version 3.4.2 *(2001-11-10)*
+----------------------------
+
+ * Fix: Stacked action bar now properly sets the tab bar background based on
+   the theme.
+
+
+Version 3.4.1 *(2011-11-09)*
+----------------------------
+
+ * The `makeFragmentName` method in `FragmentPagerAdapter` has been changed to
+   `public` scope to allow for easier access to your fragments that it is
+   managing.
+ * Action bar will now animate when calling `show()` or `hide()`.
+ * `SherlockPreferenceActivity` now provides full fragment and loader support.
+ * Examples for the plugins are now in their own sample application.
+ * Fix: Home icon no longer erroneously clipped when it exceeds the size of the
+   action bar.
+ * Fix: Tabs will now scroll horizontally to mimic the native action bar
+   behavior.
+ * Fix: Plugins now properly DO NOT inline their `R.java` integer constants.
+ * Fix: Tabs below the action bar are now styled with a default background so
+   that they do not incorrectly inherit an applied background unless explicity
+   declared.
+
+
+Version 3.4.0 *(2011-10-30)*
+----------------------------
+
+ * Library now uses the `r4` version of the compatibility library for its base.
+   Ice Cream Sandwich-specific implementations are currently disabled, however,
+   but will be added in a future version of the library.
+ * Context menu callbacks now use the support version of `MenuItem` to maintain
+   consistency.
+ * Added preference plugin which provides an action bar enhanced preference
+   screen.
+ * Fix: `abHomeLayout` theme attribute is now honored.
+ * Fix: `onPrepareOptionsMenu` is now properly dispatched upon menu
+   invalidation.
+
+
+Version 3.3.1 *(2011-10-20)*
+----------------------------
+
+ADT 14 is now required. Maven 3 is required if building from the command line.
+
+ * XML-defined `onClick` attributes will now check for an `onClick` method that
+   takes an `android.support.v4.view.MenuItem` instance.
+ * Tabs on medium screens in landscape now display inline rather than below the
+   action bar to mirror how Android 4.0 behaves with the same configuration.
+ * Fix: Menu inflater properly checks activity context for `onClick` method
+   declared in the XML.
+ * Fix: Dialog fragment properly saves its `showDialog` state when not being
+   used as a popup.
+ * Fix: Return `-1` when in tab navigation but no tab is selected. This brings
+   the library in line with the post-3.0 behavior.
+ * Fix: Removing a menu group no longer throws an `IndexOutOfBoundsException`.
+ * Fix: `getSelectedTab` and `getTabAt` no longer throw `NullPointerException`s
+   on post-3.0 when no tab was selected or no tab existed at the specified
+   position, respectively.
+ * Fix: `findFragmentById` now properly returns fragments attached to
+   `android.R.id.content` when run on pre-3.0 devices.
+
+
 Version 3.3.0 *(2011-10-11)*
 ----------------------------
 
